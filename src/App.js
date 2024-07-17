@@ -9,8 +9,7 @@ function App() {
     <div className="App">
       
         < Home/>
-        < Login/>
-        <Register />
+        
       
     </div>
   );
