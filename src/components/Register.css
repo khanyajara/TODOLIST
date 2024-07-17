@@ -1,3 +1,16 @@
+
+*{
+  padding-left: 55px;
+  padding-right: 65px;
+}
+
+
+
+
+
+
+
+
 .form {
     display: flex;
     flex-direction: column;
@@ -60,13 +73,17 @@
   }
   
   .flex {
-    display: flex;
-    width: 100%;
-    gap: 6px;
+   display: flex;
+   flex-direction: column;
+   width: 345px;
+   justify-content: space-between;
+   padding-left: 1px;
+   gap: 15px;
   }
   
   .form label {
     position: relative;
+    padding-left: 55px;
   }
   
   .form label .input {

@@ -87,17 +87,6 @@ function Register() {
               });
               }
              
-              
-
-                
-
-              
-                 
-
-  
-    
-  
-   
 
 
   return (
@@ -126,7 +115,7 @@ function Register() {
         <input required name="confirmPassword" type="password" className="input" onChange={handleChange} />
         <span>Confirm password</span>
       </label>
-      <button className="submit">Submit</button>
+      <button onClick={handleSubmit} className="submit">Submit</button>
       <p className="signin">Already have an account? <a href="/login">Signin</a></p>
     </form>
   );

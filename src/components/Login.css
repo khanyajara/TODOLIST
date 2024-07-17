@@ -1,3 +1,19 @@
+*{
+  padding-left: 55px;
+  padding-right: 65px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
 .form-container {
     width: 350px;
     height: 500px;
@@ -6,6 +22,7 @@
     border-radius: 10px;
     box-sizing: border-box;
     padding: 20px 30px;
+    
   }
   
   .title {
