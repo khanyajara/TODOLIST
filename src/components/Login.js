@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import './Login.css';
+import { Link, useHistory } from 'react-router-dom';
+
+
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -7,14 +10,19 @@ function Login() {
     password: ''
   });
 
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    console.log(formData);
+    
     // Add your login logic here
+    
   };
 
   return (
@@ -26,7 +34,7 @@ function Login() {
         <p className="page-link">
           <span className="page-link-label">Forgot Password?</span>
         </p>
-        <button className="form-btn">Log in</button>
+        <button className="form-btn"><Link to="/">Log-in</Link></button>
       </form>
       <p className="sign-up-label">
         Don't have an account? <span className="sign-up-link"><a href="/register">Sign up</a></span>

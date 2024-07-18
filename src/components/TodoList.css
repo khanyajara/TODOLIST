@@ -1,5 +1,5 @@
 .todo-list {
-    max-width: 400px;
+    max-width: 700px;
     margin: 0 auto;
   }
   
@@ -60,8 +60,8 @@
   }
   .checkbox-wrapper-46 .cbx span:first-child {
     position: relative;
-    width: 18px;
-    height: 18px;
+    width: -14px;
+    height: 8px;
     border-radius: 3px;
     transform: scale(1);
     vertical-align: middle;

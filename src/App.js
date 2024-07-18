@@ -8,10 +8,10 @@ import './App.css';
 function App() {
   return (
     <div className="App">
-      <div>
-        <button><Link to="/register">Register User</Link></button>
-        <button><Link to="/login">User Login</Link></button>
-        <button><Link to="/">Tasks</Link></button>
+      <div className='appbtn' >
+        <button className='btn'><Link to="/register">Register</Link></button>
+        <button className='btn'><Link to="/login">Login</Link></button>
+        <button className='btn'><Link to="/">Tasks</Link></button>
       </div>
       <div>
         <Routes>

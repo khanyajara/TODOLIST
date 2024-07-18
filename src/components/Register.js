@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './Register.css';
+import { Link } from 'react-router-dom';
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -115,7 +116,7 @@ function Register() {
         <input required name="confirmPassword" type="password" className="input" onChange={handleChange} />
         <span>Confirm password</span>
       </label>
-      <button onClick={handleSubmit} className="submit">Submit</button>
+      <button onClick={handleSubmit} className="submit"><Link to="/">Sign-up</Link></button>
       <p className="signin">Already have an account? <a href="/login">Signin</a></p>
     </form>
   );
