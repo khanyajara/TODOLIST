@@ -31,9 +31,7 @@ function Login() {
       <form className="form" onSubmit={handleSubmit}>
         <input name="email" type="email" className="input" placeholder="Email" onChange={handleChange} />
         <input name="password" type="password" className="input" placeholder="Password" onChange={handleChange} />
-        <p className="page-link">
-          <span className="page-link-label">Forgot Password?</span>
-        </p>
+        
         <button className="form-btn"><Link to="/">Log-in</Link></button>
       </form>
       <p className="sign-up-label">
