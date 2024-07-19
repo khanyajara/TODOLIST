@@ -1,61 +1,55 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-
-import './TodoList.css'
+import './TodoList.css';
 
 function TodoList() {
   const [todos, setTodos] = useState([]);
   const [newTodo, setNewTodo] = useState('');
-  const [newTodoDescription, setNewTodoDescription] = useState(''); // new state for task description
+  const [newTodoDescription, setNewTodoDescription] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [priority, setPriority] = useState('low');
-  const [completedTodos, setCompleted] = useState(false); // new state for task completion
-  const [editingIndex, setEditingIndex] = useState(null); 
-  const [editingTodo, setEditingTodo] = useState(''); 
-  const [editingDescription, setEditingDescription] = useState(''); 
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [editingTodo, setEditingTodo] = useState('');
+  const [editingDescription, setEditingDescription] = useState('');
   const [editingPriority, setEditingPriority] = useState('low');
-  const [editingCompleted, setEditingCompleted] = useState(false); // 
-  const [editing, setEditing] = useState(false); // 
-  
-
+  const [editingCompleted, setEditingCompleted] = useState(false);
 
   const handleAddTodo = () => {
     if (newTodo.trim()) {
       const timestamp = new Date().toLocaleString();
-      const newTask = { task: newTodo, description: newTodoDescription, timestamp, priority };
+      const newTask = { task: newTodo, description: newTodoDescription, timestamp, priority, completed: false };
       setTodos([...todos, newTask]);
       setNewTodo('');
-      setNewTodoDescription(''); // reset description input
+      setNewTodoDescription('');
       setPriority('low');
     }
   };
-    
-   
-
 
   const handleDeleteTodo = (index) => {
     setTodos(todos.filter((_, i) => i !== index));
   };
-   
 
   const handleSearch = (e) => {
     setSearchQuery(e.target.value);
-
   };
 
   const handleEditTodo = (index) => {
     setEditingIndex(index);
     setEditingTodo(todos[index].task);
     setEditingDescription(todos[index].description);
+    setEditingPriority(todos[index].priority);
+    setEditingCompleted(todos[index].completed);
   };
 
   const handleUpdateTodo = () => {
     if (editingTodo.trim()) {
-      const updatedTask = { task: editingTodo, description: 
-        editingDescription, timestamp:
-         todos[editingIndex].timestamp, priority: 
-         todos[editingIndex].priority 
-        };
+      const updatedTask = {
+        task: editingTodo,
+        description: editingDescription,
+        timestamp: todos[editingIndex].timestamp,
+        priority: editingPriority,
+        completed: editingCompleted
+      };
       const updatedTodos = [...todos];
       updatedTodos[editingIndex] = updatedTask;
       setTodos(updatedTodos);
@@ -64,27 +58,24 @@ function TodoList() {
       setEditingDescription('');
     }
   };
+
   const handleCancelEdit = () => {
     setEditingIndex(null);
     setEditingTodo('');
     setEditingDescription('');
   };
-   
 
-  const handleToggleComplete =(index) =>{
+  const handleToggleComplete = (index) => {
     const updatedTodos = [...todos];
     updatedTodos[index].completed = !updatedTodos[index].completed;
     setTodos(updatedTodos);
-  }
-
-
-
-   
-
+  };
 
   const filteredTodos = todos.filter((todo) =>
     todo.task.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const completedTodos = todos.filter((todo) => todo.completed);
 
   return (
     <div className="todo-list">
@@ -99,7 +90,7 @@ function TodoList() {
         value={newTodoDescription}
         onChange={(e) => setNewTodoDescription(e.target.value)}
         placeholder="Add a task description"
-      /> {/* new textarea for task description */}
+      />
       <select value={priority} onChange={(e) => setPriority(e.target.value)}>
         <option value="low">Low</option>
         <option value="medium">Medium</option>
@@ -114,7 +105,7 @@ function TodoList() {
         placeholder="Search"
       />
       
-       <Link to={{ pathname: "/tasks-completed", state: { completedTodos } }}>
+      <Link to={{ pathname: "/tasks-completed", state: { completedTodos } }}>
         <button>View Completed Tasks</button>
       </Link>
 

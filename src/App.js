@@ -13,7 +13,7 @@ function App() {
         <button className='btn'><Link to="/register">Register</Link></button>
         <button className='btn'><Link to="/login">Login</Link></button>
         <button className='btn'><Link to="/">Tasks</Link></button>
-        <button className='btn'><Link to="/taskscompleted"> Completed</Link></button>
+        <button className='btn'><Link to="/tasks-completed">Completed</Link></button>
       </div>
       <div>
         <Routes>
