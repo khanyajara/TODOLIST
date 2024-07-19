@@ -10,6 +10,7 @@ function Home() {
       <p>Display to-do list items here</p>
       
       <TodoList />
+      
     </div>
   );
 }

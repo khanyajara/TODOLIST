@@ -55,6 +55,8 @@
   font-size: 15px;
   height: 35px;
   width: 100px;
+  background-color: transparent;
+  border:none;
 }
 
 .btn:hover{

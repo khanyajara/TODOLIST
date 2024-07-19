@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+
 import './TodoList.css'
 
 function TodoList() {
@@ -7,10 +9,14 @@ function TodoList() {
   const [newTodoDescription, setNewTodoDescription] = useState(''); // new state for task description
   const [searchQuery, setSearchQuery] = useState('');
   const [priority, setPriority] = useState('low');
-  const [completed, setCompleted] = useState(false); // new state for task completion
+  const [completedTodos, setCompleted] = useState(false); // new state for task completion
   const [editingIndex, setEditingIndex] = useState(null); 
   const [editingTodo, setEditingTodo] = useState(''); 
   const [editingDescription, setEditingDescription] = useState(''); 
+  const [editingPriority, setEditingPriority] = useState('low');
+  const [editingCompleted, setEditingCompleted] = useState(false); // 
+  const [editing, setEditing] = useState(false); // 
+  
 
 
   const handleAddTodo = () => {
@@ -23,6 +29,7 @@ function TodoList() {
       setPriority('low');
     }
   };
+    
    
 
 
@@ -44,7 +51,11 @@ function TodoList() {
 
   const handleUpdateTodo = () => {
     if (editingTodo.trim()) {
-      const updatedTask = { task: editingTodo, description: editingDescription, timestamp: todos[editingIndex].timestamp, priority: todos[editingIndex].priority };
+      const updatedTask = { task: editingTodo, description: 
+        editingDescription, timestamp:
+         todos[editingIndex].timestamp, priority: 
+         todos[editingIndex].priority 
+        };
       const updatedTodos = [...todos];
       updatedTodos[editingIndex] = updatedTask;
       setTodos(updatedTodos);
@@ -58,6 +69,14 @@ function TodoList() {
     setEditingTodo('');
     setEditingDescription('');
   };
+   
+
+  const handleToggleComplete =(index) =>{
+    const updatedTodos = [...todos];
+    updatedTodos[index].completed = !updatedTodos[index].completed;
+    setTodos(updatedTodos);
+  }
+
 
 
    
@@ -94,54 +113,67 @@ function TodoList() {
         onChange={handleSearch}
         placeholder="Search"
       />
+      
+       <Link to={{ pathname: "/tasks-completed", state: { completedTodos } }}>
+        <button>View Completed Tasks</button>
+      </Link>
 
       <ul>
         {filteredTodos.map((todo, index) => (
           <li key={index} style={{ color: getPriorityColor(todo.priority) }}>
             <div>
+              <input
+                type="checkbox"
+                checked={todo.completed}
+                onChange={() => handleToggleComplete(index)}
+              />
               {todo.task} ({todo.timestamp})
-             
-              <div className="checkbox-wrapper-46">
-                <input type="checkbox" id={`cbx-${index}`} className="inp-cbx" />
-                <label htmlFor={`cbx-${index}`} className="cbx">
-                  <span>
-                    <svg viewBox="0 0 12 10" height="9px" width="10px">
-                      <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
-                    </svg>
-                  </span>
-                  <span>Task complete</span>
-                </label>
-                
-            <div>
-              {editingIndex === index ? (
-                <>
-                  <input
-                    type="text"
-                    value={editingTodo}
-                    onChange={(e) => setEditingTodo(e.target.value)}
-                  />
-                  <textarea
-                    value={editingDescription}
-                    onChange={(e) => setEditingDescription(e.target.value)}
-                  />
-                  <button onClick={handleUpdateTodo}>Update</button>
-                  <button onClick={handleCancelEdit}>Cancel</button>
-                </>
-              ) : (
-                <>
-                 
-                  <button onClick={() => handleDeleteTodo(index)}>Delete</button>
-                  <button onClick={() => handleEditTodo(index)}>Edit</button>
-                </>
-              )}
-            </div>
-
+              <div>
+                {editingIndex === index ? (
+                  <>
+                    <input
+                      type="text"
+                      value={editingTodo}
+                      onChange={(e) => setEditingTodo(e.target.value)}
+                    />
+                    <textarea
+                      value={editingDescription}
+                      onChange={(e) => setEditingDescription(e.target.value)}
+                    />
+                    <select
+                      value={editingPriority}
+                      onChange={(e) => setEditingPriority(e.target.value)}
+                    >
+                      <option value="low">Low</option>
+                      <option value="medium">Medium</option>
+                      <option value="high">High</option>
+                    </select>
+                    <label>
+                      Completed:
+                      <input
+                        type="checkbox"
+                        checked={editingCompleted}
+                        onChange={(e) => setEditingCompleted(e.target.checked)}
+                      />
+                    </label>
+                    <button onClick={handleUpdateTodo}>Update</button>
+                    <button onClick={handleCancelEdit}>Cancel</button>
+                  </>
+                ) : (
+                  <>
+                    <button onClick={() => handleDeleteTodo(index)}>Delete</button>
+                    <button onClick={() => handleEditTodo(index)}>Edit</button>
+                  </>
+                )}
               </div>
               <div className="collapsible">
-                <button className="collapsible-button" onClick={() => {
-                  const collapsibleContent = document.getElementById(`collapsible-content-${index}`);
-                  collapsibleContent.style.display = collapsibleContent.style.display === 'block' ? 'none' : 'block';
-                }}>
+                <button
+                  className="collapsible-button"
+                  onClick={() => {
+                    const collapsibleContent = document.getElementById(`collapsible-content-${index}`);
+                    collapsibleContent.style.display = collapsibleContent.style.display === 'block' ? 'none' : 'block';
+                  }}
+                >
                   {todo.description ? 'Show description' : 'No description'}
                 </button>
                 <div className="collapsible-content" id={`collapsible-content-${index}`}>
