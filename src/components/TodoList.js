@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './TodoList.css';
 
@@ -13,6 +13,8 @@ function TodoList() {
   const [editingDescription, setEditingDescription] = useState('');
   const [editingPriority, setEditingPriority] = useState('low');
   const [editingCompleted, setEditingCompleted] = useState(false);
+
+  
 
   const handleAddTodo = () => {
     if (newTodo.trim()) {
@@ -76,6 +78,12 @@ function TodoList() {
   );
 
   const completedTodos = todos.filter((todo) => todo.completed);
+
+   
+    
+     
+
+
 
   return (
     <div className="todo-list">
