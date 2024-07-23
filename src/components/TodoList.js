@@ -14,50 +14,128 @@ function TodoList() {
   const [editingPriority, setEditingPriority] = useState('low');
   const [editingCompleted, setEditingCompleted] = useState(false);
 
-  
+  // Fetch initial data from database on component mount
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-  const handleAddTodo = () => {
-    if (newTodo.trim()) {
-      const timestamp = new Date().toLocaleString();
-      const newTask = { task: newTodo, description: newTodoDescription, timestamp, priority, completed: false };
-      setTodos([...todos, newTask]);
-      setNewTodo('');
-      setNewTodoDescription('');
-      setPriority('low');
+  const fetchData = async () => {
+    try {
+      const response = await fetch('/api/todolist');
+      if (response.ok) {
+        const data = await response.json();
+        setTodos(data);
+      } else {
+        throw new Error('Failed to fetch data');
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
     }
   };
 
-  const handleDeleteTodo = (index) => {
-    setTodos(todos.filter((_, i) => i !== index));
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    if (name === 'newTodo') {
+      setNewTodo(value);
+    } else if (name === 'newTodoDescription') {
+      setNewTodoDescription(value);
+    }
   };
 
-  const handleSearch = (e) => {
-    setSearchQuery(e.target.value);
+  const handlePriorityChange = (e) => {
+    setPriority(e.target.value);
+  };
+
+  const handleAddTodo = async () => {
+    if (newTodo.trim()) {
+      const timestamp = new Date().toLocaleString();
+      const newTask = {
+        title: newTodo,
+        description: newTodoDescription,
+        date: timestamp,
+        priority: priority,
+      };
+  
+      try {
+        const response = await fetch('/api/todolist', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(newTask),
+        });
+  
+        if (response.ok) {
+          await fetchData(); // Fetch updated data after adding task
+          setNewTodo('');
+          setNewTodoDescription('');
+          setPriority('low');
+        } else {
+          throw new Error('Failed to add new task');
+        }
+      } catch (error) {
+        console.error('Error adding new task:', error);
+      }
+    } else {
+      console.warn('New task title is empty or contains only whitespace.');
+    }
+  };
+  
+
+  const handleDeleteTodo = async (id) => {
+    try {
+      const response = await fetch(`/api/todolist/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        await fetchData();
+      } else {
+        throw new Error('Failed to delete task');
+      }
+    } catch (error) {
+      console.error('Error deleting task:', error);
+    }
   };
 
   const handleEditTodo = (index) => {
+    const todoToEdit = todos[index];
     setEditingIndex(index);
-    setEditingTodo(todos[index].task);
-    setEditingDescription(todos[index].description);
-    setEditingPriority(todos[index].priority);
-    setEditingCompleted(todos[index].completed);
+    setEditingTodo(todoToEdit.title);
+    setEditingDescription(todoToEdit.description);
+    setEditingPriority(todoToEdit.priority);
+    setEditingCompleted(todoToEdit.completed);
   };
 
-  const handleUpdateTodo = () => {
+  const handleUpdateTodo = async () => {
     if (editingTodo.trim()) {
-      const updatedTask = {
-        task: editingTodo,
+      const updatedTodo = {
+        title: editingTodo,
         description: editingDescription,
-        timestamp: todos[editingIndex].timestamp,
         priority: editingPriority,
-        completed: editingCompleted
+        completed: editingCompleted,
       };
-      const updatedTodos = [...todos];
-      updatedTodos[editingIndex] = updatedTask;
-      setTodos(updatedTodos);
-      setEditingIndex(null);
-      setEditingTodo('');
-      setEditingDescription('');
+
+      try {
+        const response = await fetch(`/api/todolist/${todos[editingIndex].id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(updatedTodo),
+        });
+
+        if (response.ok) {
+          await fetchData();
+          setEditingIndex(null);
+          setEditingTodo('');
+          setEditingDescription('');
+        } else {
+          throw new Error('Failed to update task');
+        }
+      } catch (error) {
+        console.error('Error updating task:', error);
+      }
     }
   };
 
@@ -67,39 +145,49 @@ function TodoList() {
     setEditingDescription('');
   };
 
-  const handleToggleComplete = (index) => {
+  const handleToggleComplete = async (index) => {
     const updatedTodos = [...todos];
     updatedTodos[index].completed = !updatedTodos[index].completed;
     setTodos(updatedTodos);
+
+    try {
+      const response = await fetch(`/api/todolist/${todos[index].id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedTodos[index]),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update completion status');
+      }
+    } catch (error) {
+      console.error('Error updating completion status:', error);
+    }
   };
 
   const filteredTodos = todos.filter((todo) =>
-    todo.task.toLowerCase().includes(searchQuery.toLowerCase())
+    todo.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
-  const completedTodos = todos.filter((todo) => todo.completed);
-
-   
-    
-     
-
-
 
   return (
     <div className="todo-list">
       <h2>To-Do List</h2>
       <input
         type="text"
+        name="newTodo"
         value={newTodo}
-        onChange={(e) => setNewTodo(e.target.value)}
+        onChange={handleInputChange}
         placeholder="Add a new task"
       />
       <textarea
+        name="newTodoDescription"
         value={newTodoDescription}
-        onChange={(e) => setNewTodoDescription(e.target.value)}
+        onChange={handleInputChange}
         placeholder="Add a task description"
       />
-      <select value={priority} onChange={(e) => setPriority(e.target.value)}>
+      <select value={priority} onChange={handlePriorityChange}>
         <option value="low">Low</option>
         <option value="medium">Medium</option>
         <option value="high">High</option>
@@ -109,24 +197,24 @@ function TodoList() {
       <input
         type="text"
         value={searchQuery}
-        onChange={handleSearch}
+        onChange={(e) => setSearchQuery(e.target.value)}
         placeholder="Search"
       />
-      
-      <Link to={{ pathname: "/tasks-completed", state: { completedTodos } }}>
+
+      <Link to={{ pathname: "/tasks-completed", state: { completedTodos: todos.filter(todo => todo.completed) } }}>
         <button>View Completed Tasks</button>
       </Link>
 
       <ul>
         {filteredTodos.map((todo, index) => (
-          <li key={index} style={{ color: getPriorityColor(todo.priority) }}>
+          <li key={todo.id} style={{ color: getPriorityColor(todo.priority) }}>
             <div>
               <input
                 type="checkbox"
                 checked={todo.completed}
                 onChange={() => handleToggleComplete(index)}
               />
-              {todo.task} ({todo.timestamp})
+              {todo.title} ({todo.date})
               <div>
                 {editingIndex === index ? (
                   <>
@@ -160,7 +248,7 @@ function TodoList() {
                   </>
                 ) : (
                   <>
-                    <button onClick={() => handleDeleteTodo(index)}>Delete</button>
+                    <button onClick={() => handleDeleteTodo(todo.id)}>Delete</button>
                     <button onClick={() => handleEditTodo(index)}>Edit</button>
                   </>
                 )}
@@ -169,13 +257,13 @@ function TodoList() {
                 <button
                   className="collapsible-button"
                   onClick={() => {
-                    const collapsibleContent = document.getElementById(`collapsible-content-${index}`);
+                    const collapsibleContent = document.getElementById(`collapsible-content-${todo.id}`);
                     collapsibleContent.style.display = collapsibleContent.style.display === 'block' ? 'none' : 'block';
                   }}
                 >
                   {todo.description ? 'Show description' : 'No description'}
                 </button>
-                <div className="collapsible-content" id={`collapsible-content-${index}`}>
+                <div className="collapsible-content" id={`collapsible-content-${todo.id}`}>
                   <p>{todo.description}</p>
                 </div>
               </div>

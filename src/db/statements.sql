@@ -21,6 +21,6 @@ WHERE title = "Buy milk"
 DELETE FROM "todo_items"
 WHERE user_id = "1"
  
- SELECT title FROM "todo_items"
+ SELECT * FROM "todo_items";
 
  DROP TABLE "todo_items"
