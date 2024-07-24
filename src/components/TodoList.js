@@ -14,6 +14,12 @@ function TodoList() {
   const [editingDescription, setEditingDescription] = useState('');
   const [editingPriority, setEditingPriority] = useState('low');
   const [editingCompleted, setEditingCompleted] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [editing, setEditing] = useState(false);
+  const [completed, setCompleted] = useState(false);
+  const [completedTodos, setCompletedTodos] = useState([]);
+  const [incompleteTodos, setIncompleteTodos] = useState([]);
+  const [completedTodosCount, setCompletedTodosCount] = useState(0);
 
   // Fetch initial data from database on component mount
   useEffect(() => {
