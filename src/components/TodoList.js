@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './TodoList.css';
+import axios from 'axios';
 
 function TodoList() {
   const [todos, setTodos] = useState([]);
@@ -21,10 +22,9 @@ function TodoList() {
 
   const fetchData = async () => {
     try {
-      const response = await fetch('/api/todolist');
-      if (response.ok) {
-        const data = await response.json();
-        setTodos(data);
+      const response = await axios.get('http://localhost:3000/api/todolist');
+      if (response.status === 200) {
+        setTodos(response.data);
       } else {
         throw new Error('Failed to fetch data');
       }
@@ -54,18 +54,13 @@ function TodoList() {
         description: newTodoDescription,
         date: timestamp,
         priority: priority,
+        completed: false
       };
-  
+
       try {
-        const response = await fetch('/api/todolist', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(newTask),
-        });
-  
-        if (response.ok) {
+        const response = await axios.post('http://localhost:3000/api/todolist', newTask);
+
+        if (response.status === 201) { // Assuming your backend returns 201 for created resources
           await fetchData(); // Fetch updated data after adding task
           setNewTodo('');
           setNewTodoDescription('');
@@ -80,15 +75,12 @@ function TodoList() {
       console.warn('New task title is empty or contains only whitespace.');
     }
   };
-  
 
   const handleDeleteTodo = async (id) => {
     try {
-      const response = await fetch(`/api/todolist/${id}`, {
-        method: 'DELETE',
-      });
+      const response = await axios.delete(`http://localhost:3000/api/todolist/${id}`);
 
-      if (response.ok) {
+      if (response.status === 200) {
         await fetchData();
       } else {
         throw new Error('Failed to delete task');
@@ -117,15 +109,9 @@ function TodoList() {
       };
 
       try {
-        const response = await fetch(`/api/todolist/${todos[editingIndex].id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(updatedTodo),
-        });
+        const response = await axios.put(`http://localhost:3000/api/todolist/${todos[editingIndex].id}`, updatedTodo);
 
-        if (response.ok) {
+        if (response.status === 200) {
           await fetchData();
           setEditingIndex(null);
           setEditingTodo('');
@@ -151,15 +137,9 @@ function TodoList() {
     setTodos(updatedTodos);
 
     try {
-      const response = await fetch(`/api/todolist/${todos[index].id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updatedTodos[index]),
-      });
+      const response = await axios.put(`http://localhost:3000/api/todolist/${todos[index].id}`, updatedTodos[index]);
 
-      if (!response.ok) {
+      if (response.status !== 200) {
         throw new Error('Failed to update completion status');
       }
     } catch (error) {
@@ -176,12 +156,14 @@ function TodoList() {
       <h2>To-Do List</h2>
       <input
         type="text"
+        id="newTodo"
         name="newTodo"
         value={newTodo}
         onChange={handleInputChange}
         placeholder="Add a new task"
       />
       <textarea
+        id="newTodoDescription"
         name="newTodoDescription"
         value={newTodoDescription}
         onChange={handleInputChange}
@@ -196,6 +178,7 @@ function TodoList() {
 
       <input
         type="text"
+        id="searchQuery"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         placeholder="Search"
