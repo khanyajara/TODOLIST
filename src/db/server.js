@@ -1,67 +1,64 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const path = require('path');
-const cors = require('cors'); // Import cors package
-const { createTodoList, getTodoList, updateTodoList, deleteTodoList } = require('./db/statements.js');
+const express = require("express");
+const bodyParser = require("body-parser");
+const cors = require("cors");
+const { body, validationResult } = require("express-validator");
+const bcrypt = require("bcrypt");
+const db = require("better-sqlite3")("database.db");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const port = process.env.PORT || 3000; // Or use process.env.PORT if specified
 
-// Middleware
+app.use(cors());
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cors()); // Enable CORS for all routes
 
-// Serve static assets if in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static('client/build'));
-  app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
-  });
-}
+// Create user table if not exists
+const createUserTable = () => {
+  const sql = `
+    CREATE TABLE IF NOT EXISTS user (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      firstname TEXT NOT NULL,
+      lastname TEXT NOT NULL,
+      email TEXT NOT NULL UNIQUE,
+      password TEXT NOT NULL
+    )
+  `;
+  db.prepare(sql).run();
+};
+createUserTable();
 
-// API endpoints (example endpoints, adjust as per your needs)
-app.get('/api/todolist', async (req, res) => {
-  try {
-    const todoList = await getTodoList();
-    res.json(todoList);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+// Handle user registration
+app.post(
+  "/register",
+  [
+    body("firstname").isString().trim().escape(),
+    body("lastname").isString().trim().escape(),
+    body("email").isEmail().normalizeEmail(),
+    body("password").isLength({ min: 6 }).escape(),
+    body("confirmPassword").custom((value, { req }) => value === req.body.password)
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    
+    const { firstname, lastname, email, password } = req.body;
+    try {
+      const hashedPassword = await bcrypt.hash(password, 12);
+      const sql = `
+        INSERT INTO user (firstname, lastname, email, password)
+        VALUES (?, ?, ?, ?)
+      `;
+      db.prepare(sql).run(firstname, lastname, email, hashedPassword);
+      res.status(200).json({ message: "Registration successful" });
+    } catch (error) {
+      console.error("Error registering user:", error);
+      res.status(500).json({ error: "Error registering user" });
+    }
   }
-});
+);
 
-app.post('/api/todolist', async (req, res) => {
-  const { title, description, date } = req.body;
-  try {
-    await createTodoList(title, description, date);
-    res.status(201).send('Todo created successfully');
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.put('/api/todolist/:id', async (req, res) => {
-  const { id } = req.params;
-  const { title, description, priority, completed } = req.body;
-  try {
-    await updateTodoList(id, title, description, priority, completed);
-    res.send('Todo updated successfully');
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.delete('/api/todolist/:id', async (req, res) => {
-  const { id } = req.params;
-  try {
-    await deleteTodoList(id);
-    res.send('Todo deleted successfully');
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+// Start the server
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`);
 });

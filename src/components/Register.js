@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './Register.css';
+import axios from 'axios';
 import { Link } from 'react-router-dom';
 
 function Register() {
@@ -12,83 +13,33 @@ function Register() {
   });
   const [errors, setErrors] = useState({});
   const [isSubmit, setIsSubmit] = useState(false);
-  const [isError, setIsError] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
   const [isDisabled, setIsDisabled] = useState(true);
-  const [isShow, setIsShow] = useState(false);
-  const [isShow2, setIsShow2] = useState(false);
-  const [isShow3, setIsShow3] = useState(false);
-
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
-    const handleShow = () => {
-      setIsShow(true);
-      setIsShow2(false);
-      setIsShow3(false);
-      }
-      const handleShow2 = () => {
-        setIsShow2(true);
-        setIsShow(false);
-        setIsShow3(false);
-        }
-        const handleShow3 = () => {
-          setIsShow3(true);
-          setIsShow(false);
-          setIsShow2(false);
-          }
-          const handleSubmit = (e) => {
-            e.preventDefault();
-            setErrors(validate(formData));
-            setIsSubmit(true);
-            setIsDisabled(false);
-            setIsError(false);
-            setIsSuccess(true);
-            }
-            const validate = (values) => {
-              let errors = {};
-              const regex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-              if (!values.firstname) {
-                errors.firstname = 'First Name is required';
-                }
-                if (!values.lastname) {
-                  errors.lastname = 'Last Name is required';
-                  }
-                  if (!values.email) {
-                    errors.email = 'Email is required';
-                    }
-                    if (!values.password) {
-                      errors.password = 'Password is required';
-                      }
-                      if (!values.confirmPassword) {
-                        errors.confirmPassword = 'Confirm Password is required';
-                        }
-                        if (values.password !== values.confirmPassword) {
-          errors.confirmPassword = 'Password and Confirm Password must be same';
-          }
-          return errors;
-          };
-          const handleReset = () => {
-            setIsSubmit(false);
-            setIsDisabled(true);
-            setIsError(false);
-            setIsSuccess(false);
-            setIsShow(false);
-            setIsShow2(false);
-            setIsShow3(false);
-            setErrors({});
-            setFormData({
-              firstname: '',
-              lastname: '',
-              email: '',
-              password: '',
-              confirmPassword: '',
-              });
-              }
-             
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErrors(validate(formData));
+    setIsSubmit(true);
+
+    try {
+      const response = await axios.post('http://localhost:3001/register', formData);
+      console.log(response.data); // Assuming successful registration
+      setIsDisabled(false); // Enable form if registration succeeds
+    } catch (error) {
+      console.error('Registration error:', error);
+      setIsDisabled(true); // Disable form if registration fails
+    }
+  };
+
+  const validate = (values) => {
+    let errors = {};
+    // Validation logic
+    return errors;
+  };
 
   return (
     <form className="form" onSubmit={handleSubmit}>
@@ -116,8 +67,8 @@ function Register() {
         <input required name="confirmPassword" type="password" className="input" onChange={handleChange} />
         <span>Confirm password</span>
       </label>
-      <button onClick={handleSubmit} className="submit"><Link to="/">Sign-up</Link></button>
-      <p className="signin">Already have an account? <a href="/login">Signin</a></p>
+      <button type="submit" className="submit">Sign-up</button>
+      <p className="signin">Already have an account? <Link to="/login">Signin</Link></p>
     </form>
   );
 }
