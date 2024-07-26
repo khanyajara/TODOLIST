@@ -7,8 +7,8 @@ function TodoList() {
   const [todos, setTodos] = useState([]);
   const [newTodo, setNewTodo] = useState('');
   const [newTodoDescription, setNewTodoDescription] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
   const [priority, setPriority] = useState('low');
+  const [searchQuery, setSearchQuery] = useState('');
   const [editingIndex, setEditingIndex] = useState(null);
   const [editingTodo, setEditingTodo] = useState('');
   const [editingDescription, setEditingDescription] = useState('');
@@ -16,13 +16,15 @@ function TodoList() {
   const [editingCompleted, setEditingCompleted] = useState(false);
   const location = useLocation(); // Hook to access location object
 
+  const API_URL = 'http://localhost:3000/tasks';
+
   useEffect(() => {
     fetchData();
   }, []);
 
   const fetchData = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/tasks');
+      const response = await axios.get(API_URL);
       if (response.status === 200) {
         setTodos(response.data);
       } else {
@@ -56,9 +58,9 @@ function TodoList() {
       };
 
       try {
-        const response = await axios.post('http://localhost:3000/tasks', newTask);
+        const response = await axios.post(API_URL, newTask);
         if (response.status === 201) {
-          await fetchData();
+          fetchData();
           setNewTodo('');
           setNewTodoDescription('');
           setPriority('low');
@@ -75,9 +77,10 @@ function TodoList() {
 
   const handleDeleteTodo = async (id) => {
     try {
-      const response = await axios.delete(`http://localhost:3000/tasks/${id}`);
+      const response = await axios.delete(`${API_URL}/${id}`);
       if (response.status === 200) {
-        await fetchData();
+        fetchData();
+       
       } else {
         throw new Error('Failed to delete task');
       }
@@ -105,9 +108,9 @@ function TodoList() {
       };
 
       try {
-        const response = await axios.put(`http://localhost:3000/tasks/${todos[editingIndex].id}`, updatedTodo);
+        const response = await axios.put(`${API_URL}/${todos[editingIndex].id}`, updatedTodo);
         if (response.status === 200) {
-          await fetchData();
+          fetchData();
           setEditingIndex(null);
           setEditingTodo('');
           setEditingDescription('');
@@ -127,13 +130,16 @@ function TodoList() {
   };
 
   const handleToggleComplete = async (index) => {
-    const updatedTodos = [...todos];
-    updatedTodos[index].completed = !updatedTodos[index].completed;
-    setTodos(updatedTodos);
+    const updatedTodo = {
+      ...todos[index],
+      completed: !todos[index].completed
+    };
 
     try {
-      const response = await axios.put(`http://localhost:3000/tasks/${todos[index].id}`, updatedTodos[index]);
-      if (response.status !== 200) {
+      const response = await axios.put(`${API_URL}/${todos[index].id}`, updatedTodo);
+      if (response.status === 200) {
+        fetchData();
+      } else {
         throw new Error('Failed to toggle task completion');
       }
     } catch (error) {

@@ -33,22 +33,22 @@ const createUserTable = () => {
 createUserTable();
 
 // Create task table if not exists
-const createTaskTable = () => {
+const createTask = () => {
   const sql = `
     CREATE TABLE IF NOT EXISTS task (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
       description TEXT,
-      priority INTEGER NOT NULL CHECK (priority >= 1 AND priority <= 5),
+      priority TEXT CHECK (priority IN('high', 'medium', 'low')),
       timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       completed BOOLEAN NOT NULL DEFAULT 0,
       user_id INTEGER,
       FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
     )
   `;
-  db.exec(sql);
+  db.prepare(sql).run();
 };
-createTaskTable();
+createTask();
 
 // Handle user registration
 app.post(
@@ -111,7 +111,7 @@ app.post('/login', async (req, res) => {
 app.post('/tasks', [
   body('name').isString().trim().notEmpty().escape(),
   body('description').optional().isString().trim().escape(),
-  body('priority').isInt({ min: 1, max: 5 }),
+  body('priority').isInt({ high, medium, low}),
   body('user_id').optional().isInt()
 ], (req, res) => {
   const errors = validationResult(req);
