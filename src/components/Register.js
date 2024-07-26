@@ -22,13 +22,15 @@ function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrors(validate(formData));
+    const validationErrors = validate(formData);
+    setErrors(validationErrors);
 
-    if (Object.keys(errors).length === 0) {
+    if (Object.keys(validationErrors).length === 0) {
       setLoading(true);
       try {
         const response = await axios.post('http://localhost:3000/register', formData);
         console.log(response.data); // Assuming successful registration
+        const { firstname } = response.data.user;
         alert('Registration successful!');
         setFormData({
           firstname: '',
@@ -38,7 +40,7 @@ function Register() {
           confirmPassword: ''
         });
         setLoading(false);
-        navigate('/login');
+        navigate('/todolist', { state: { welcomeMessage: `Welcome, ${firstname}!` } });
       } catch (error) {
         console.error('Registration error:', error);
         setLoading(false);
@@ -127,8 +129,8 @@ function Register() {
         <span>Confirm password</span>
         {errors.confirmPassword && <p className="error">{errors.confirmPassword}</p>}
       </label>
-      <button type="submit" className="submit" disabled={loading}>
-        {loading ? <em>Submitting...</em> : <em>Sign-up</em>}
+      <button type="submit" className="submit"  disabled={loading}>
+        {loading ? <em>Submitting...</em> : <em><Link to="/">Signup</Link></em>}
       </button>
       <p className="signin">Already have an account? <Link to="/login">Signin</Link></p>
     </form>

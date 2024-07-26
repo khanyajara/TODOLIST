@@ -28,9 +28,27 @@ const createUserTable = () => {
       password TEXT NOT NULL
     )
   `;
-  db.exec(sql); // Use exec for table creation
+  db.exec(sql);
 };
 createUserTable();
+
+// Create task table if not exists
+const createTaskTable = () => {
+  const sql = `
+    CREATE TABLE IF NOT EXISTS task (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      description TEXT,
+      priority INTEGER NOT NULL CHECK (priority >= 1 AND priority <= 5),
+      timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      completed BOOLEAN NOT NULL DEFAULT 0,
+      user_id INTEGER,
+      FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
+    )
+  `;
+  db.exec(sql);
+};
+createTaskTable();
 
 // Handle user registration
 app.post(
@@ -76,6 +94,129 @@ app.post(
     }
   }
 );
+
+// Handle user login
+app.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+  const user = db.prepare("SELECT * FROM user WHERE email = ?").get(email);
+
+  if (user && await bcrypt.compare(password, user.password)) {
+    res.json({ message: 'Login successful', user });
+  } else {
+    res.status(401).json({ error: 'Invalid email or password' });
+  }
+});
+
+// Create a new task
+app.post('/tasks', [
+  body('name').isString().trim().notEmpty().escape(),
+  body('description').optional().isString().trim().escape(),
+  body('priority').isInt({ min: 1, max: 5 }),
+  body('user_id').optional().isInt()
+], (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  const { name, description, priority, user_id } = req.body;
+  try {
+    const insertTask = db.prepare(
+      "INSERT INTO task (name, description, priority, user_id) VALUES (?, ?, ?, ?)"
+    );
+    const result = insertTask.run(name, description, priority, user_id);
+
+    if (result.changes === 1) {
+      res.status(201).json({ message: "Task created successfully" });
+    } else {
+      throw new Error("Failed to insert task");
+    }
+  } catch (error) {
+    console.error("Error creating task:", error);
+    res.status(500).json({ error: "Error creating task" });
+  }
+});
+
+let tasks = []; // Example in-memory store
+
+// POST route to add a new task
+app.post('/tasks', (req, res) => {
+  const { name, description, priority, completed } = req.body;
+  
+  if (!name || typeof name !== 'string') {
+    return res.status(400).json({ error: 'Invalid task name' });
+  }
+
+  const newTask = {
+    id: tasks.length + 1, // Simple ID generation
+    name,
+    description,
+    priority,
+    completed
+  };
+
+  tasks.push(newTask);
+  res.status(201).json(newTask);
+});
+
+// Retrieve all tasks
+app.get('/tasks', (req, res) => {
+  const tasks = db.prepare("SELECT * FROM task").all();
+  res.json(tasks);
+});
+
+// Retrieve a task by ID
+app.get('/tasks/:id', (req, res) => {
+  const task = db.prepare("SELECT * FROM task WHERE id = ?").get(req.params.id);
+  if (task) {
+    res.json(task);
+  } else {
+    res.status(404).json({ error: "Task not found" });
+  }
+});
+
+// Update a task
+app.put('/tasks/:id', [
+  body('name').optional().isString().trim().notEmpty().escape(),
+  body('description').optional().isString().trim().escape(),
+  body('priority').optional().isInt({ min: 1, max: 5 }),
+  body('completed').optional().isBoolean()
+], (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  const { name, description, priority, completed } = req.body;
+  const updateTask = db.prepare(
+    "UPDATE task SET name = ?, description = ?, priority = ?, completed = ? WHERE id = ?"
+  );
+  const result = updateTask.run(name, description, priority, completed, req.params.id);
+
+  if (result.changes === 1) {
+    res.json({ message: "Task updated successfully" });
+  } else {
+    res.status(404).json({ error: "Task not found" });
+  }
+});
+
+// Delete a task
+app.delete('/tasks/:id', (req, res) => {
+  const deleteTask = db.prepare("DELETE FROM task WHERE id = ?");
+  const result = deleteTask.run(req.params.id);
+
+  if (result.changes === 1) {
+    res.json({ message: "Task deleted successfully" });
+  } else {
+    res.status(404).json({ error: "Task not found" });
+  }
+});
+
+// Retrieve all users
+app.get('/users', (req, res) => {
+  const users = db.prepare("SELECT * FROM user").all();
+  res.json(users);
+});
 
 // Start the server
 app.listen(port, () => {

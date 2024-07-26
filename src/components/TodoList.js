@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import './TodoList.css';
 import axios from 'axios';
+import { useLocation } from 'react-router-dom';
+import './TodoList.css';
 
 function TodoList() {
   const [todos, setTodos] = useState([]);
@@ -14,21 +14,15 @@ function TodoList() {
   const [editingDescription, setEditingDescription] = useState('');
   const [editingPriority, setEditingPriority] = useState('low');
   const [editingCompleted, setEditingCompleted] = useState(false);
-  const [editingId, setEditingId] = useState(null);
-  const [editing, setEditing] = useState(false);
-  const [completed, setCompleted] = useState(false);
-  const [completedTodos, setCompletedTodos] = useState([]);
-  const [incompleteTodos, setIncompleteTodos] = useState([]);
-  const [completedTodosCount, setCompletedTodosCount] = useState(0);
+  const location = useLocation(); // Hook to access location object
 
-  // Fetch initial data from database on component mount
   useEffect(() => {
     fetchData();
   }, []);
 
   const fetchData = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/api/todolist');
+      const response = await axios.get('http://localhost:3000/tasks');
       if (response.status === 200) {
         setTodos(response.data);
       } else {
@@ -54,20 +48,17 @@ function TodoList() {
 
   const handleAddTodo = async () => {
     if (newTodo.trim()) {
-      const timestamp = new Date().toLocaleString();
       const newTask = {
-        title: newTodo,
+        name: newTodo,
         description: newTodoDescription,
-        date: timestamp,
-        priority: priority,
+        priority,
         completed: false
       };
 
       try {
-        const response = await axios.post('http://localhost:3000/api/todolist', newTask);
-
-        if (response.status === 201) { // Assuming your backend returns 201 for created resources
-          await fetchData(); // Fetch updated data after adding task
+        const response = await axios.post('http://localhost:3000/tasks', newTask);
+        if (response.status === 201) {
+          await fetchData();
           setNewTodo('');
           setNewTodoDescription('');
           setPriority('low');
@@ -84,8 +75,7 @@ function TodoList() {
 
   const handleDeleteTodo = async (id) => {
     try {
-      const response = await axios.delete(`http://localhost:3000/api/todolist/${id}`);
-
+      const response = await axios.delete(`http://localhost:3000/tasks/${id}`);
       if (response.status === 200) {
         await fetchData();
       } else {
@@ -99,7 +89,7 @@ function TodoList() {
   const handleEditTodo = (index) => {
     const todoToEdit = todos[index];
     setEditingIndex(index);
-    setEditingTodo(todoToEdit.title);
+    setEditingTodo(todoToEdit.name);
     setEditingDescription(todoToEdit.description);
     setEditingPriority(todoToEdit.priority);
     setEditingCompleted(todoToEdit.completed);
@@ -108,15 +98,14 @@ function TodoList() {
   const handleUpdateTodo = async () => {
     if (editingTodo.trim()) {
       const updatedTodo = {
-        title: editingTodo,
+        name: editingTodo,
         description: editingDescription,
         priority: editingPriority,
-        completed: editingCompleted,
+        completed: editingCompleted
       };
 
       try {
-        const response = await axios.put(`http://localhost:3000/api/todolist/${todos[editingIndex].id}`, updatedTodo);
-
+        const response = await axios.put(`http://localhost:3000/tasks/${todos[editingIndex].id}`, updatedTodo);
         if (response.status === 200) {
           await fetchData();
           setEditingIndex(null);
@@ -143,138 +132,99 @@ function TodoList() {
     setTodos(updatedTodos);
 
     try {
-      const response = await axios.put(`http://localhost:3000/api/todolist/${todos[index].id}`, updatedTodos[index]);
-
+      const response = await axios.put(`http://localhost:3000/tasks/${todos[index].id}`, updatedTodos[index]);
       if (response.status !== 200) {
-        throw new Error('Failed to update completion status');
+        throw new Error('Failed to toggle task completion');
       }
     } catch (error) {
-      console.error('Error updating completion status:', error);
+      console.error('Error toggling task completion:', error);
     }
   };
 
-  const filteredTodos = todos.filter((todo) =>
-    todo.title.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredTodos = todos.filter(todo =>
+    todo.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
-    <div className="todo-list">
-      <h2>To-Do List</h2>
-      <input
-        type="text"
-        id="newTodo"
-        name="newTodo"
-        value={newTodo}
-        onChange={handleInputChange}
-        placeholder="Add a new task"
-      />
-      <textarea
-        id="newTodoDescription"
-        name="newTodoDescription"
-        value={newTodoDescription}
-        onChange={handleInputChange}
-        placeholder="Add a task description"
-      />
-      <select value={priority} onChange={handlePriorityChange}>
-        <option value="low">Low</option>
-        <option value="medium">Medium</option>
-        <option value="high">High</option>
-      </select>
-      <button onClick={handleAddTodo}>Add</button>
-
-      <input
-        type="text"
-        id="searchQuery"
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        placeholder="Search"
-      />
-
-      <Link to={{ pathname: "/tasks-completed", state: { completedTodos: todos.filter(todo => todo.completed) } }}>
-        <button>View Completed Tasks</button>
-      </Link>
-
-      <ul>
+    <div className="todo-container">
+      <div className="todo-header">
+        <h1>Todo List</h1>
+        {location.state && location.state.welcomeMessage && (
+          <h2>{location.state.welcomeMessage}</h2>
+        )}
+        <input
+          type="text"
+          placeholder="Search tasks..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
+      <div className="todo-input">
+        <input
+          type="text"
+          name="newTodo"
+          value={newTodo}
+          onChange={handleInputChange}
+          placeholder="New task title"
+        />
+        <textarea
+          name="newTodoDescription"
+          value={newTodoDescription}
+          onChange={handleInputChange}
+          placeholder="Description (optional)"
+        />
+        <select value={priority} onChange={handlePriorityChange}>
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+        </select>
+        <button onClick={handleAddTodo}>Add Task</button>
+      </div>
+      <div className="todo-list">
         {filteredTodos.map((todo, index) => (
-          <li key={todo.id} style={{ color: getPriorityColor(todo.priority) }}>
-            <div>
-              <input
-                type="checkbox"
-                checked={todo.completed}
-                onChange={() => handleToggleComplete(index)}
-              />
-              {todo.title} ({todo.date})
-              <div>
-                {editingIndex === index ? (
-                  <>
-                    <input
-                      type="text"
-                      value={editingTodo}
-                      onChange={(e) => setEditingTodo(e.target.value)}
-                    />
-                    <textarea
-                      value={editingDescription}
-                      onChange={(e) => setEditingDescription(e.target.value)}
-                    />
-                    <select
-                      value={editingPriority}
-                      onChange={(e) => setEditingPriority(e.target.value)}
-                    >
-                      <option value="low">Low</option>
-                      <option value="medium">Medium</option>
-                      <option value="high">High</option>
-                    </select>
-                    <label>
-                      Completed:
-                      <input
-                        type="checkbox"
-                        checked={editingCompleted}
-                        onChange={(e) => setEditingCompleted(e.target.checked)}
-                      />
-                    </label>
-                    <button onClick={handleUpdateTodo}>Update</button>
-                    <button onClick={handleCancelEdit}>Cancel</button>
-                  </>
-                ) : (
-                  <>
-                    <button onClick={() => handleDeleteTodo(todo.id)}>Delete</button>
-                    <button onClick={() => handleEditTodo(index)}>Edit</button>
-                  </>
-                )}
+          <div key={todo.id} className="todo-item">
+            {editingIndex === index ? (
+              <div className="todo-edit">
+                <input
+                  type="text"
+                  value={editingTodo}
+                  onChange={(e) => setEditingTodo(e.target.value)}
+                />
+                <textarea
+                  value={editingDescription}
+                  onChange={(e) => setEditingDescription(e.target.value)}
+                />
+                <select value={editingPriority} onChange={(e) => setEditingPriority(e.target.value)}>
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                </select>
+                <label>
+                  Completed
+                  <input
+                    type="checkbox"
+                    checked={editingCompleted}
+                    onChange={() => setEditingCompleted(!editingCompleted)}
+                  />
+                </label>
+                <button onClick={handleUpdateTodo}>Save</button>
+                <button onClick={handleCancelEdit}>Cancel</button>
               </div>
-              <div className="collapsible">
-                <button
-                  className="collapsible-button"
-                  onClick={() => {
-                    const collapsibleContent = document.getElementById(`collapsible-content-${todo.id}`);
-                    collapsibleContent.style.display = collapsibleContent.style.display === 'block' ? 'none' : 'block';
-                  }}
-                >
-                  {todo.description ? 'Show description' : 'No description'}
+            ) : (
+              <div className="todo-content">
+                <span className={todo.completed ? 'completed' : ''}>{todo.name}</span>
+                <button onClick={() => handleEditTodo(index)}>Edit</button>
+                <button onClick={() => handleToggleComplete(index)}>
+                  {todo.completed ? 'Undo' : 'Complete'}
                 </button>
-                <div className="collapsible-content" id={`collapsible-content-${todo.id}`}>
-                  <p>{todo.description}</p>
-                </div>
+                <button onClick={() => handleDeleteTodo(todo.id)}>Delete</button>
               </div>
-            </div>
-          </li>
+            )}
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }
-
-const getPriorityColor = (priority) => {
-  switch (priority) {
-    case 'high':
-      return 'red';
-    case 'medium':
-      return 'orange';
-    case 'low':
-      return 'green';
-    default:
-      return 'black';
-  }
-};
 
 export default TodoList;
