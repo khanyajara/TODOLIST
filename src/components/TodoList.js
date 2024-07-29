@@ -7,12 +7,12 @@ function TodoList() {
   const [todos, setTodos] = useState([]);
   const [newTodo, setNewTodo] = useState('');
   const [newTodoDescription, setNewTodoDescription] = useState('');
-  const [priority, setPriority] = useState('low');
+  const [priority, setPriority] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [editingIndex, setEditingIndex] = useState(null);
   const [editingTodo, setEditingTodo] = useState('');
   const [editingDescription, setEditingDescription] = useState('');
-  const [editingPriority, setEditingPriority] = useState('low');
+  const [editingPriority, setEditingPriority] = useState(1);
   const [editingCompleted, setEditingCompleted] = useState(false);
   const location = useLocation(); // Hook to access location object
 
@@ -45,7 +45,7 @@ function TodoList() {
   };
 
   const handlePriorityChange = (e) => {
-    setPriority(e.target.value);
+    setPriority(parseInt(e.target.value, 10));
   };
 
   const handleAddTodo = async () => {
@@ -63,7 +63,7 @@ function TodoList() {
           fetchData();
           setNewTodo('');
           setNewTodoDescription('');
-          setPriority('low');
+          setPriority(1);
         } else {
           throw new Error('Failed to add new task');
         }
@@ -80,7 +80,6 @@ function TodoList() {
       const response = await axios.delete(`${API_URL}/${id}`);
       if (response.status === 200) {
         fetchData();
-       
       } else {
         throw new Error('Failed to delete task');
       }
@@ -180,9 +179,11 @@ function TodoList() {
           placeholder="Description (optional)"
         />
         <select value={priority} onChange={handlePriorityChange}>
-          <option value="low">Low</option>
-          <option value="medium">Medium</option>
-          <option value="high">High</option>
+          <option value={1}>Low</option>
+          <option value={2}>Medium</option>
+          <option value={3}>High</option>
+          <option value={4}>Very High</option>
+          <option value={5}>Critical</option>
         </select>
         <button onClick={handleAddTodo}>Add Task</button>
       </div>
@@ -200,10 +201,12 @@ function TodoList() {
                   value={editingDescription}
                   onChange={(e) => setEditingDescription(e.target.value)}
                 />
-                <select value={editingPriority} onChange={(e) => setEditingPriority(e.target.value)}>
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
+                <select value={editingPriority} onChange={(e) => setEditingPriority(parseInt(e.target.value, 10))}>
+                  <option value={1}>Low</option>
+                  <option value={2}>Medium</option>
+                  <option value={3}>High</option>
+                  <option value={4}>Very High</option>
+                  <option value={5}>Critical</option>
                 </select>
                 <label>
                   Completed
@@ -234,3 +237,4 @@ function TodoList() {
 }
 
 export default TodoList;
+ 

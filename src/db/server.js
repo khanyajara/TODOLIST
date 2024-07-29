@@ -111,7 +111,7 @@ app.post('/login', async (req, res) => {
 app.post('/tasks', [
   body('name').isString().trim().notEmpty().escape(),
   body('description').optional().isString().trim().escape(),
-  body('priority').isInt({ high, medium, low}),
+  body('priority').isInt({ min:1, max: 5}),
   body('user_id').optional().isInt()
 ], (req, res) => {
   const errors = validationResult(req);

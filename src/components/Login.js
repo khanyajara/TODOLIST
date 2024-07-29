@@ -32,7 +32,7 @@ function Login() {
         <input name="email" type="email" className="input" placeholder="Email" onChange={handleChange} />
         <input name="password" type="password" className="input" placeholder="Password" onChange={handleChange} />
         
-        <button className="form-btn"><Link to="/">Log-in</Link></button>
+        <button className="form-btn"><a href="/">Log-in</a></button>
       </form>
       <p className="sign-up-label">
         Don't have an account? <span className="sign-up-link"><a href="/register">Sign up</a></span>
