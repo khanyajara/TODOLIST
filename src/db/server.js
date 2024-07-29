@@ -120,6 +120,13 @@ app.post('/tasks', [
   }
 
   const { name, description, priority, user_id } = req.body;
+  
+  // Validate user_id exists
+  const user = db.prepare("SELECT * FROM user WHERE id = ?").get(user_id);
+  if (!user) {
+    return res.status(404).json({ error: "User not found" });
+  }
+
   try {
     const insertTask = db.prepare(
       "INSERT INTO task (name, description, priority, user_id) VALUES (?, ?, ?, ?)"
