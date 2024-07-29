@@ -20,21 +20,17 @@ const Login = () => {
   
   useEffect(() => {
     const fetchData = async (userId) => {
-      try {
-        const response = await axios.get(API_URL, { params: { user_id: userId } });
-        if (response.status === 200) {
-          setTodos(response.data);
-        } else {
-          throw new Error('Failed to fetch data');
+      if (userId) {
+        try {
+          const response = await axios.get(`/tasks?user_id=${userId}`);
+          setTodos(response.data.tasks); // Assuming data structure
+        } catch (error) {
+          console.error('Error fetching tasks:', error);
         }
-      } catch (error) {
-        console.error('Error fetching data:', error);
       }
     };
-
-    if (userId) {
-      fetchData(userId);
-    }
+  
+    fetchData(userId);
   }, [userId]);
 
   const handleChange = (e) => {
@@ -44,14 +40,15 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
-    
+  
     try {
-      // Add your login logic here, e.g., authentication logic
-      // Example: const response = await axios.post(API_URL, formData);
-
-      // Redirect to home page after successful login
-      navigate('/');
+      const response = await axios.post(API_URL, formData); // Declare and assign response here
+  
+      if (response.status === 200) {
+        const { user } = response.data;
+        localStorage.setItem('userId', user.id);
+        navigate('/');
+      }
     } catch (error) {
       console.error('Login failed:', error);
     }

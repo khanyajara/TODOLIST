@@ -130,7 +130,7 @@ function Register() {
         {errors.confirmPassword && <p className="error">{errors.confirmPassword}</p>}
       </label>
       <button type="submit" className="submit"  disabled={loading}>
-        {loading ? <em>Submitting...</em> : <em><Link to="/">Signup</Link></em>}
+        {loading ? <em>Submitting...</em> : <em><a href="/">Signup</a></em>}
       </button>
       <p className="signin">Already have an account? <Link to="/login">Signin</Link></p>
     </form>

@@ -187,6 +187,10 @@ function TodoList() {
         </select>
         <button onClick={handleAddTodo}>Add Task</button>
       </div>
+      <div>
+    <h2>My Tasks</h2>
+    {/* ... Task display logic using setTodos ... */}
+  </div>
       <div className="todo-list">
         {filteredTodos.map((todo, index) => (
           <div key={todo.id} className="todo-item">

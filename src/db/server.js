@@ -33,22 +33,22 @@ const createUserTable = () => {
 createUserTable();
 
 // Create task table if not exists
-const createTask = () => {
+const createTaskTable = () => {
   const sql = `
     CREATE TABLE IF NOT EXISTS task (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
       description TEXT,
-      priority TEXT CHECK (priority IN('high', 'medium', 'low')),
+      priority TEXT CHECK (priority IN ('high', 'medium', 'low')),
       timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       completed BOOLEAN NOT NULL DEFAULT 0,
       user_id INTEGER,
       FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
     )
   `;
-  db.prepare(sql).run();
+  db.exec(sql);
 };
-createTask();
+createTaskTable();
 
 // Handle user registration
 app.post(
@@ -65,7 +65,7 @@ app.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    
+
     const { firstname, lastname, email, password } = req.body;
     try {
       // Check if user already exists
@@ -101,7 +101,7 @@ app.post('/login', async (req, res) => {
   const user = db.prepare("SELECT * FROM user WHERE email = ?").get(email);
 
   if (user && await bcrypt.compare(password, user.password)) {
-    res.json({ message: 'Login successful', user });
+    res.json({ message: 'Login successful', user: { ...user, id: user.id } });
   } else {
     res.status(401).json({ error: 'Invalid email or password' });
   }
@@ -111,8 +111,8 @@ app.post('/login', async (req, res) => {
 app.post('/tasks', [
   body('name').isString().trim().notEmpty().escape(),
   body('description').optional().isString().trim().escape(),
-  body('priority').isInt({ min:1, max: 5}),
-  body('user_id').optional().isInt()
+  body('priority').isIn(['high', 'medium', 'low']),
+  body('user_id').isInt()
 ], (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -137,41 +137,20 @@ app.post('/tasks', [
   }
 });
 
-let tasks = []; // Example in-memory store
+// Retrieve all tasks for a specific user
+app.get('/tasks', async (req, res) => {
+  const userId = req.query.user_id;
 
-// POST route to add a new task
-app.post('/tasks', (req, res) => {
-  const { name, description, priority, completed } = req.body;
-  
-  if (!name || typeof name !== 'string') {
-    return res.status(400).json({ error: 'Invalid task name' });
+  if (!userId) {
+    return res.status(400).json({ error: 'Missing user ID' });
   }
 
-  const newTask = {
-    id: tasks.length + 1, // Simple ID generation
-    name,
-    description,
-    priority,
-    completed
-  };
-
-  tasks.push(newTask);
-  res.status(201).json(newTask);
-});
-
-// Retrieve all tasks
-app.get('/tasks', (req, res) => {
-  const tasks = db.prepare("SELECT * FROM task").all();
-  res.json(tasks);
-});
-
-// Retrieve a task by ID
-app.get('/tasks/:id', (req, res) => {
-  const task = db.prepare("SELECT * FROM task WHERE id = ?").get(req.params.id);
-  if (task) {
-    res.json(task);
-  } else {
-    res.status(404).json({ error: "Task not found" });
+  try {
+    const tasks = db.prepare("SELECT * FROM task WHERE user_id = ?").all(userId);
+    res.json({ tasks });
+  } catch (error) {
+    console.error('Error fetching tasks:', error);
+    res.status(500).json({ error: 'Error fetching tasks' });
   }
 });
 
@@ -179,7 +158,7 @@ app.get('/tasks/:id', (req, res) => {
 app.put('/tasks/:id', [
   body('name').optional().isString().trim().notEmpty().escape(),
   body('description').optional().isString().trim().escape(),
-  body('priority').optional().isInt({ min: 1, max: 5 }),
+  body('priority').optional().isIn(['high', 'medium', 'low']),
   body('completed').optional().isBoolean()
 ], (req, res) => {
   const errors = validationResult(req);
@@ -188,34 +167,49 @@ app.put('/tasks/:id', [
   }
 
   const { name, description, priority, completed } = req.body;
-  const updateTask = db.prepare(
-    "UPDATE task SET name = ?, description = ?, priority = ?, completed = ? WHERE id = ?"
-  );
-  const result = updateTask.run(name, description, priority, completed, req.params.id);
+  try {
+    const updateTask = db.prepare(
+      "UPDATE task SET name = ?, description = ?, priority = ?, completed = ? WHERE id = ?"
+    );
+    const result = updateTask.run(name, description, priority, completed, req.params.id);
 
-  if (result.changes === 1) {
-    res.json({ message: "Task updated successfully" });
-  } else {
-    res.status(404).json({ error: "Task not found" });
+    if (result.changes === 1) {
+      res.json({ message: "Task updated successfully" });
+    } else {
+      res.status(404).json({ error: "Task not found" });
+    }
+  } catch (error) {
+    console.error("Error updating task:", error);
+    res.status(500).json({ error: "Error updating task" });
   }
 });
 
 // Delete a task
 app.delete('/tasks/:id', (req, res) => {
-  const deleteTask = db.prepare("DELETE FROM task WHERE id = ?");
-  const result = deleteTask.run(req.params.id);
+  try {
+    const deleteTask = db.prepare("DELETE FROM task WHERE id = ?");
+    const result = deleteTask.run(req.params.id);
 
-  if (result.changes === 1) {
-    res.json({ message: "Task deleted successfully" });
-  } else {
-    res.status(404).json({ error: "Task not found" });
+    if (result.changes === 1) {
+      res.json({ message: "Task deleted successfully" });
+    } else {
+      res.status(404).json({ error: "Task not found" });
+    }
+  } catch (error) {
+    console.error("Error deleting task:", error);
+    res.status(500).json({ error: "Error deleting task" });
   }
 });
 
 // Retrieve all users
 app.get('/users', (req, res) => {
-  const users = db.prepare("SELECT * FROM user").all();
-  res.json(users);
+  try {
+    const users = db.prepare("SELECT * FROM user").all();
+    res.json(users);
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ error: 'Error fetching users' });
+  }
 });
 
 // Start the server
