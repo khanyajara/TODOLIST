@@ -123,7 +123,7 @@ const getTodo = () => {
     return db.prepare(sql).get(id);
 };
 
- const getTodoListById = (id) => {
+ const getTodoListByUserId = (id) => {
     const sql = `SELECT * FROM todoList WHERE id = ?`;
     return db.prepare(sql).get(id);
 };

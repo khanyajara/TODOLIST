@@ -14,24 +14,29 @@ function TodoList({ userId }) {
   const [editingDescription, setEditingDescription] = useState('');
   const [editingPriority, setEditingPriority] = useState(1);
   const [editingCompleted, setEditingCompleted] = useState(false);
-  const location = useLocation(); // Hook to access location object
+  const [loading, setLoading] = useState(false);
+  const location = useLocation();
 
-  const API_URL = 'http://localhost:3000/tasks';
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/tasks';
 
   useEffect(() => {
     fetchData();
   }, []);
 
   const fetchData = async () => {
+    setLoading(true);
     try {
-      const response = await axios.get(`${API_URL}?user_id=${userId}`);
+      const response = await axios.get(`${API_URL}/${userId}`, { withCredentials: true });
       if (response.status === 200) {
-        setTodos(response.data);
+        setTodos(response.data.tasks);
       } else {
         throw new Error('Failed to fetch data');
       }
     } catch (error) {
       console.error('Error fetching data:', error);
+      alert('Error fetching tasks. Please try again later.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -59,7 +64,7 @@ function TodoList({ userId }) {
       };
 
       try {
-        const response = await axios.post(API_URL, newTask);
+        const response = await axios.post(API_URL, newTask, { withCredentials: true });
         if (response.status === 201) {
           fetchData();
           setNewTodo('');
@@ -70,22 +75,26 @@ function TodoList({ userId }) {
         }
       } catch (error) {
         console.error('Error adding new task:', error);
+        alert('Error adding new task. Please try again later.');
       }
     } else {
-      console.warn('New task title is empty or contains only whitespace.');
+      alert('New task title cannot be empty.');
     }
   };
 
   const handleDeleteTodo = async (id) => {
-    try {
-      const response = await axios.delete(`${API_URL}/${id}?user_id=${userId}`);
-      if (response.status === 200) {
-        fetchData();
-      } else {
-        throw new Error('Failed to delete task');
+    if (window.confirm('Are you sure you want to delete this task?')) {
+      try {
+        const response = await axios.delete(`${API_URL}/${id}?user_id=${userId}`, { withCredentials: true });
+        if (response.status === 200) {
+          fetchData();
+        } else {
+          throw new Error('Failed to delete task');
+        }
+      } catch (error) {
+        console.error('Error deleting task:', error);
+        alert('Error deleting task. Please try again later.');
       }
-    } catch (error) {
-      console.error('Error deleting task:', error);
     }
   };
 
@@ -108,17 +117,16 @@ function TodoList({ userId }) {
       };
 
       try {
-        const response = await axios.put(`${API_URL}/${todos[editingIndex].id}`, updatedTodo);
+        const response = await axios.put(`${API_URL}/${todos[editingIndex].id}`, updatedTodo, { withCredentials: true });
         if (response.status === 200) {
           fetchData();
-          setEditingIndex(null);
-          setEditingTodo('');
-          setEditingDescription('');
+          handleCancelEdit();
         } else {
           throw new Error('Failed to update task');
         }
       } catch (error) {
         console.error('Error updating task:', error);
+        alert('Error updating task. Please try again later.');
       }
     }
   };
@@ -136,7 +144,7 @@ function TodoList({ userId }) {
     };
 
     try {
-      const response = await axios.put(`${API_URL}/${todos[index].id}`, updatedTodo);
+      const response = await axios.put(`${API_URL}/${todos[index].id}`, updatedTodo, { withCredentials: true });
       if (response.status === 200) {
         fetchData();
       } else {
@@ -144,6 +152,7 @@ function TodoList({ userId }) {
       }
     } catch (error) {
       console.error('Error toggling task completion:', error);
+      alert('Error toggling task completion. Please try again later.');
     }
   };
 
@@ -151,8 +160,26 @@ function TodoList({ userId }) {
     todo.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const getPriorityClass = (priority) => {
+    switch (priority) {
+      case 1:
+        return 'priority-low';
+      case 2:
+        return 'priority-medium';
+      case 3:
+        return 'priority-high';
+      case 4:
+        return 'priority-very-high';
+      case 5:
+        return 'priority-critical';
+      default:
+        return '';
+    }
+  };
+
   return (
     <div className="todo-container">
+      {loading && <p>Loading...</p>}
       <div className="todo-header">
         <h1>Todo List</h1>
         {location.state && location.state.welcomeMessage && (
@@ -190,49 +217,46 @@ function TodoList({ userId }) {
       </div>
       <div className="todo-list">
         {filteredTodos.map((todo, index) => (
-          <div key={todo.id} className="todo-item">
-            {editingIndex === index ? (
-              <div className="todo-edit">
-                <input
-                  type="text"
-                  value={editingTodo}
-                  onChange={(e) => setEditingTodo(e.target.value)}
-                />
-                <textarea
-                  value={editingDescription}
-                  onChange={(e) => setEditingDescription(e.target.value)}
-                />
-                <select value={editingPriority} onChange={(e) => setEditingPriority(parseInt(e.target.value, 10))}>
-                  <option value={1}>Low</option>
-                  <option value={2}>Medium</option>
-                  <option value={3}>High</option>
-                  <option value={4}>Very High</option>
-                  <option value={5}>Critical</option>
-                </select>
-                <label>
-                  Completed
-                  <input
-                    type="checkbox"
-                    checked={editingCompleted}
-                    onChange={() => setEditingCompleted(!editingCompleted)}
-                  />
-                </label>
-                <button onClick={handleUpdateTodo}>Save</button>
-                <button onClick={handleCancelEdit}>Cancel</button>
-              </div>
-            ) : (
-              <div className="todo-content">
-                <span className={todo.completed ? 'completed' : ''}>{todo.name}</span>
-                <button onClick={() => handleEditTodo(index)}>Edit</button>
-                <button onClick={() => handleToggleComplete(index)}>
-                  {todo.completed ? 'Undo' : 'Complete'}
-                </button>
-                <button onClick={() => handleDeleteTodo(todo.id)}>Delete</button>
-              </div>
-            )}
+          <div key={todo.id} className={`todo-item ${getPriorityClass(todo.priority)}`}>
+            {todo.completed ? <span className="completed">{todo.name}</span> : <span>{todo.name}</span>}
+            <button onClick={() => handleEditTodo(index)}>Edit</button>
+            <button onClick={() => handleToggleComplete(index)}>
+              {todo.completed ? 'Undo' : 'Complete'}
+            </button>
+            <button onClick={() => handleDeleteTodo(todo.id)}>Delete</button>
           </div>
         ))}
       </div>
+      {editingIndex !== null && (
+        <div className="todo-edit">
+          <input
+            type="text"
+            value={editingTodo}
+            onChange={(e) => setEditingTodo(e.target.value)}
+          />
+          <textarea
+            value={editingDescription}
+            onChange={(e) => setEditingDescription(e.target.value)}
+          />
+          <select value={editingPriority} onChange={(e) => setEditingPriority(parseInt(e.target.value, 10))}>
+            <option value={1}>Low</option>
+            <option value={2}>Medium</option>
+            <option value={3}>High</option>
+            <option value={4}>Very High</option>
+            <option value={5}>Critical</option>
+          </select>
+          <label>
+            Completed
+            <input
+              type="checkbox"
+              checked={editingCompleted}
+              onChange={() => setEditingCompleted(!editingCompleted)}
+            />
+          </label>
+          <button onClick={handleUpdateTodo}>Save</button>
+          <button onClick={handleCancelEdit}>Cancel</button>
+        </div>
+      )}
     </div>
   );
 }
