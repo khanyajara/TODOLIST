@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useLocation } from 'react-router-dom';
 import './TodoList.css';
 
-function TodoList() {
+function TodoList({ userId }) {
   const [todos, setTodos] = useState([]);
   const [newTodo, setNewTodo] = useState('');
   const [newTodoDescription, setNewTodoDescription] = useState('');
@@ -24,7 +24,7 @@ function TodoList() {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get(API_URL);
+      const response = await axios.get(`${API_URL}?user_id=${userId}`);
       if (response.status === 200) {
         setTodos(response.data);
       } else {
@@ -54,7 +54,8 @@ function TodoList() {
         name: newTodo,
         description: newTodoDescription,
         priority,
-        completed: false
+        completed: false,
+        user_id: userId
       };
 
       try {
@@ -77,7 +78,7 @@ function TodoList() {
 
   const handleDeleteTodo = async (id) => {
     try {
-      const response = await axios.delete(`${API_URL}/${id}`);
+      const response = await axios.delete(`${API_URL}/${id}?user_id=${userId}`);
       if (response.status === 200) {
         fetchData();
       } else {
@@ -187,10 +188,6 @@ function TodoList() {
         </select>
         <button onClick={handleAddTodo}>Add Task</button>
       </div>
-      <div>
-    <h2>My Tasks</h2>
-    {/* ... Task display logic using setTodos ... */}
-  </div>
       <div className="todo-list">
         {filteredTodos.map((todo, index) => (
           <div key={todo.id} className="todo-item">
@@ -241,4 +238,3 @@ function TodoList() {
 }
 
 export default TodoList;
- 
