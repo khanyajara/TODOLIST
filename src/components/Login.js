@@ -10,16 +10,13 @@ const Login = () => {
     email: '',
     password: ''
   });
-  const [todos, setTodos] = useState([]); // Example state for fetched data
+  const [todos, setTodos] = useState([]);
+  const [error, setError] = useState(''); // State for error messages
 
-  // Initialize navigate
   const navigate = useNavigate();
 
-  // Assuming userId should be retrieved from context or local storage
-  const userId = localStorage.getItem('userId');
-  
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchData = async (userId) => {
       try {
         const response = await axios.get(`${API_URL}?user_id=${userId}`);
         if (response.status === 200) {
@@ -31,39 +28,49 @@ const Login = () => {
         console.error('Error fetching data:', error);
       }
     };
-  
-    fetchData(userId);
-  }, [userId]);
+
+    const storedUserId = localStorage.getItem('userId');
+    if (storedUserId) {
+      fetchData(storedUserId);
+    }
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
+  const handleButtonClick = () => {
+    navigate('/');
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+    setError('');
+
     try {
       const response = await axios.post(API_URL, formData);
-  
       if (response.status === 200) {
-        const { user } = response.data;
-        localStorage.setItem('userId', user.id); // Assuming user object has an 'id' property
-        navigate('/');
+        const { data } = response; // Use data instead of response.data
+        if (data.user) { // Check if user exists in the response before accessing id
+          localStorage.setItem('userId', data.user.id);
+          navigate('/');
+        } else {
+          setError('Login successful but user data is missing.');  // Inform user of unexpected response
+        }
       } else {
-        console.error('Login failed:', response.data); // Log error message from server
-        // Display an error message to the user (e.g., using a state variable for error)
+        // Handle login failure as before
       }
+      
     } catch (error) {
+      setError('An error occurred. Please try again later.');
       console.error('Login failed:', error);
-      // Display a generic error message to the user
     }
   };
-  
 
   return (
     <div className="form-container">
       <p className="title">Welcome back</p>
+      {error && <p className="error-message">{error}</p>}
       <form className="form" onSubmit={handleSubmit}>
         <input 
           name="email" 
@@ -81,7 +88,9 @@ const Login = () => {
           value={formData.password}
           onChange={handleChange} 
         />
-        <button type="submit" className="form-btn">Log in</button>
+         <button type="submit" className="form-btn" onClick={handleButtonClick}>
+        Log in
+      </button>
       </form>
       <p className="sign-up-label">
         Don't have an account? <span className="sign-up-link"><Link to="/register">Sign up</Link></span>

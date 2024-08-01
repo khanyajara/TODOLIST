@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useLocation } from 'react-router-dom';
 import './TodoList.css';
 
-function TodoList({ userId }) {
+function TodoList() {
   const [todos, setTodos] = useState([]);
   const [newTodo, setNewTodo] = useState('');
   const [newTodoDescription, setNewTodoDescription] = useState('');
@@ -20,13 +20,16 @@ function TodoList({ userId }) {
   const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/tasks';
 
   useEffect(() => {
-    fetchData();
+    const storedUserId = localStorage.getItem('userId');
+    if (storedUserId) {
+      fetchData(storedUserId);
+    }
   }, []);
 
-  const fetchData = async () => {
+  const fetchData = async (userId) => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API_URL}/${userId}`, { withCredentials: true });
+      const response = await axios.get(`${API_URL}/user/${userId}`, { withCredentials: true });
       if (response.status === 200) {
         setTodos(response.data.tasks);
       } else {
@@ -55,18 +58,25 @@ function TodoList({ userId }) {
 
   const handleAddTodo = async () => {
     if (newTodo.trim()) {
+      const storedUserId = localStorage.getItem('userId');
+      const token = localStorage.getItem('token'); // Assuming you store the token in localStorage
       const newTask = {
         name: newTodo,
         description: newTodoDescription,
         priority,
         completed: false,
-        user_id: userId
+        user_id: storedUserId
       };
-
+  
       try {
-        const response = await axios.post(API_URL, newTask, { withCredentials: true });
+        const response = await axios.post(API_URL, newTask, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          },
+          withCredentials: true
+        });
         if (response.status === 201) {
-          fetchData();
+          fetchData(storedUserId);
           setNewTodo('');
           setNewTodoDescription('');
           setPriority(1);
@@ -81,13 +91,15 @@ function TodoList({ userId }) {
       alert('New task title cannot be empty.');
     }
   };
+  
 
   const handleDeleteTodo = async (id) => {
+    const storedUserId = localStorage.getItem('userId');
     if (window.confirm('Are you sure you want to delete this task?')) {
       try {
-        const response = await axios.delete(`${API_URL}/${id}?user_id=${userId}`, { withCredentials: true });
+        const response = await axios.delete(`${API_URL}/${id}?user_id=${storedUserId}`, { withCredentials: true });
         if (response.status === 200) {
-          fetchData();
+          fetchData(storedUserId);
         } else {
           throw new Error('Failed to delete task');
         }
@@ -108,18 +120,20 @@ function TodoList({ userId }) {
   };
 
   const handleUpdateTodo = async () => {
+    const storedUserId = localStorage.getItem('userId');
     if (editingTodo.trim()) {
       const updatedTodo = {
         name: editingTodo,
         description: editingDescription,
         priority: editingPriority,
-        completed: editingCompleted
+        completed: editingCompleted,
+        user_id: storedUserId
       };
 
       try {
         const response = await axios.put(`${API_URL}/${todos[editingIndex].id}`, updatedTodo, { withCredentials: true });
         if (response.status === 200) {
-          fetchData();
+          fetchData(storedUserId);
           handleCancelEdit();
         } else {
           throw new Error('Failed to update task');
@@ -138,15 +152,17 @@ function TodoList({ userId }) {
   };
 
   const handleToggleComplete = async (index) => {
+    const storedUserId = localStorage.getItem('userId');
     const updatedTodo = {
       ...todos[index],
-      completed: !todos[index].completed
+      completed: !todos[index].completed,
+      user_id: storedUserId
     };
 
     try {
       const response = await axios.put(`${API_URL}/${todos[index].id}`, updatedTodo, { withCredentials: true });
       if (response.status === 200) {
-        fetchData();
+        fetchData(storedUserId);
       } else {
         throw new Error('Failed to toggle task completion');
       }
