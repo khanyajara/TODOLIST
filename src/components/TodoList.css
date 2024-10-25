@@ -1,17 +1,22 @@
-*{
+* {
   margin-left: 75px;
   width: 300px;
+  box-sizing: border-box; /* Ensure padding doesn't affect total width */
 }
 
 .todo-container {
   width: 80%;
   max-width: 900px;
   margin: 0 auto;
-  justify-content: center;
   padding: 20px;
-  background-color: #f8f8f8;
+  background-color: #ffffff; /* Change background to white for contrast */
   border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Increased shadow for depth */
+  transition: transform 0.3s; /* Animation for container hover */
+}
+
+.todo-container:hover {
+  transform: translateY(-5px); /* Slight lift effect on hover */
 }
 
 .todo-header h1 {
@@ -19,6 +24,7 @@
   color: #333;
   font-size: 2.5rem;
   margin-bottom: 10px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); /* Subtle text shadow */
 }
 
 .todo-header input[type="text"] {
@@ -26,8 +32,13 @@
   padding: 10px;
   margin: 10px 0;
   font-size: 1rem;
-  border: 1px solid #ccc;
+  border: 1px solid #007bff; /* Blue border */
   border-radius: 5px;
+  transition: border-color 0.3s; /* Transition for input focus */
+}
+
+.todo-header input[type="text"]:focus {
+  border-color: #0056b3; /* Darker blue on focus */
 }
 
 .todo-input {
@@ -44,21 +55,29 @@
   border: 1px solid #ddd;
   border-radius: 5px;
   font-size: 1rem;
+  transition: border-color 0.3s; /* Transition for input focus */
+}
+
+.todo-input input[type="text"]:focus,
+.todo-input textarea:focus,
+.todo-input select:focus {
+  border-color: #007bff; /* Blue border on focus */
 }
 
 .todo-input button {
   padding: 10px 15px;
-  background-color: #007bff;
+  background-color: #007bff; /* Button background */
   color: white;
   font-size: 1rem;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, transform 0.2s; /* Add transform for button hover */
 }
 
 .todo-input button:hover {
-  background-color: #0056b3;
+  background-color: #0056b3; /* Darker blue on hover */
+  transform: scale(1.05); /* Slight scaling effect on hover */
 }
 
 .todo-list {
@@ -73,36 +92,36 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 10px;
-  transition: box-shadow 0.3s;
+  transition: box-shadow 0.3s; /* Transition for box shadow */
 }
 
 .todo-item:hover {
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
 }
 
 .priority-low {
-  background-color: #e7f3e7;
-  border-left: 5px solid #5cb85c;
+  background-color: #e7f3e7; /* Light Green */
+  border-left: 5px solid #5cb85c; /* Green accent */
 }
 
 .priority-medium {
-  background-color: #fff3cd;
-  border-left: 5px solid #ffc107;
+  background-color: #fff3cd; /* Light Yellow */
+  border-left: 5px solid #ffc107; /* Yellow accent */
 }
 
 .priority-high {
-  background-color: #f8d7da;
-  border-left: 5px solid #dc3545;
+  background-color: #f8d7da; /* Light Red */
+  border-left: 5px solid #dc3545; /* Red accent */
 }
 
 .priority-very-high {
-  background-color: #f5c6cb;
-  border-left: 5px solid #d9534f;
+  background-color: #f5c6cb; /* Light Pink */
+  border-left: 5px solid #d9534f; /* Darker Pink accent */
 }
 
 .priority-critical {
-  background-color: #f8d7da;
-  border-left: 5px solid #c9302c;
+  background-color: #f8d7da; /* Light Red */
+  border-left: 5px solid #c9302c; /* Darker Red accent */
 }
 
 .todo-item button {
@@ -111,23 +130,24 @@
   color: #007bff;
   cursor: pointer;
   font-size: 1rem;
-  transition: color 0.3s;
+  transition: color 0.3s; /* Transition for text color */
 }
 
 .todo-item button:hover {
-  color: #0056b3;
+  color: #0056b3; /* Darker blue on hover */
 }
 
 .completed {
   text-decoration: line-through;
-  color: #6c757d;
+  color: #6c757d; /* Grey */
 }
 
 .todo-edit {
   padding: 20px;
   margin-top: 20px;
-  background-color: #f1f1f1;
+  background-color: #f1f1f1; /* Light Grey */
   border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Light shadow */
 }
 
 .todo-edit input[type="text"],
@@ -144,17 +164,18 @@
 .todo-edit button {
   padding: 10px 15px;
   margin-right: 10px;
-  background-color: #007bff;
+  background-color: #007bff; /* Button background */
   color: white;
   font-size: 1rem;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, transform 0.2s; /* Add transform for button hover */
 }
 
 .todo-edit button:hover {
-  background-color: #0056b3;
+  background-color: #0056b3; /* Darker blue on hover */
+  transform: scale(1.05); /* Slight scaling effect on hover */
 }
 
 .todo-edit label {
@@ -168,136 +189,200 @@
   height: 20px;
 }
 
-  .checkbox-wrapper-46 input[type="checkbox"] {
-    display: none;
-    visibility: hidden;
+/* Checkbox styles */
+.checkbox-wrapper-46 input[type="checkbox"] {
+  display: none;
+  visibility: hidden;
+}
+
+.checkbox-wrapper-46 .cbx {
+  margin: auto;
+  user-select: none;
+  cursor: pointer;
+}
+
+.checkbox-wrapper-46 .cbx span {
+  display: inline-block;
+  vertical-align: middle;
+  transform: translate3d(0, 0, 0);
+}
+
+.checkbox-wrapper-46 .cbx span:first-child {
+  position: relative;
+  width: 20px; /* Corrected width */
+  height: 20px; /* Corrected height */
+  border-radius: 3px;
+  transform: scale(1);
+  vertical-align: middle;
+  border: 1px solid #007bff; /* Blue border */
+  transition: all 0.2s ease;
+}
+
+.checkbox-wrapper-46 .cbx span:first-child svg {
+  position: absolute;
+  top: 3px;
+  left: 2px;
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 16px;
+  stroke-dashoffset: 16px;
+  transition: all 0.3s ease;
+  transition-delay: 0.1s;
+  transform: translate3d(0, 0, 0);
+}
+
+.checkbox-wrapper-46 .cbx span:first-child:before {
+  content: "";
+  width: 100%;
+  height: 100%;
+  background: #007bff; /* Blue background */
+  display: block;
+  transform: scale(0);
+  opacity: 1;
+  border-radius: 50%;
+}
+
+.checkbox-wrapper-46 .cbx span:last-child {
+  padding-left: 8px;
+}
+
+.checkbox-wrapper-46 .cbx:hover span:first-child {
+  border-color: #0056b3; /* Darker blue on hover */
+}
+
+.checkbox-wrapper-46 .inp-cbx:checked + .cbx span:first-child {
+  background: #007bff; /* Blue background */
+  border-color: #007bff; /* Blue border */
+  animation: wave-46 0.4s ease;
+}
+
+.checkbox-wrapper-46 .inp-cbx:checked + .cbx span:first-child svg {
+  stroke-dashoffset: 0;
+}
+
+.checkbox-wrapper-46 .inp-cbx:checked + .cbx span:first-child:before {
+  transform: scale(3.5);
+  opacity: 0;
+  transition: all 0.6s ease;
+}
+
+@keyframes wave-46 {
+  50% {
+    transform: scale(0.9);
   }
-  
-  .checkbox-wrapper-46 .cbx {
-    margin: auto;
-    -webkit-user-select: none;
-    user-select: none;
-    cursor: pointer;
-  }
-  .checkbox-wrapper-46 .cbx span {
-    display: inline-block;
-    vertical-align: middle;
-    transform: translate3d(0, 0, 0);
-  }
-  .checkbox-wrapper-46 .cbx span:first-child {
-    position: relative;
-    width: -14px;
-    height: 8px;
-    border-radius: 3px;
-    transform: scale(1);
-    vertical-align: middle;
-    border: 1px solid #9098a9;
-    transition: all 0.2s ease;
-  }
-  .checkbox-wrapper-46 .cbx span:first-child svg {
-    position: absolute;
-    top: 3px;
-    left: 2px;
-    fill: none;
-    stroke: #ffffff;
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-dasharray: 16px;
-    stroke-dashoffset: 16px;
-    transition: all 0.3s ease;
-    transition-delay: 0.1s;
-    transform: translate3d(0, 0, 0);
-  }
-  .checkbox-wrapper-46 .cbx span:first-child:before {
-    content: "";
-    width: 100%;
-    height: 100%;
-    background: #506eec;
-    display: block;
-    transform: scale(0);
-    opacity: 1;
-    border-radius: 50%;
-  }
-  .checkbox-wrapper-46 .cbx span:last-child {
-    padding-left: 8px;
-  }
-  .checkbox-wrapper-46 .cbx:hover span:first-child {
-    border-color: #506eec;
-  }
-  
-  .checkbox-wrapper-46 .inp-cbx:checked + .cbx span:first-child {
-    background: #506eec;
-    border-color: #506eec;
-    animation: wave-46 0.4s ease;
-  }
-  .checkbox-wrapper-46 .inp-cbx:checked + .cbx span:first-child svg {
-    stroke-dashoffset: 0;
-  }
-  .checkbox-wrapper-46 .inp-cbx:checked + .cbx span:first-child:before {
-    transform: scale(3.5);
-    opacity: 0;
-    transition: all 0.6s ease;
-  }
-  
-  @keyframes wave-46 {
-    50% {
-      transform: scale(0.9);
-    }
-  }
-  .todo-item {
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  
-  .todo-item span {
-    flex-grow: 1;
-  }
-  
-  .todo-item.priority-low {
-    background-color: #e0f7fa; /* Light Cyan */
-  }
-  
-  .todo-item.priority-medium {
-    background-color: #ffe5c4; /* Light Yellow */
-  }
-  
-  .todo-item.priority-high {
-    background-color: #d69885; /* Light Coral */
-  }
-  
-  .todo-item.priority-very-high {
-    background-color: #e4635f; /* Peach */
-  }
-  
-  .todo-item.priority-critical {
-    background-color: #ac1d1d; /* Red */
-  }
-  
-  .todo-item .completed {
-    text-decoration: line-through;
-    color: #9e9e9e; /* Grey */
-  }
-  
-  .todo-input {
-    margin-bottom: 20px;
-  }
-  
-  .todo-input input,
-  .todo-input textarea,
-  .todo-input select {
-    margin-right: 10px;
-  }
-  
-  .todo-edit {
-    border-top: 1px solid #ddd;
-    padding: 10px;
-    margin-top: 20px;
-  }
-  
-  
+}
+
+.todo-item {
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.todo-item span {
+  flex-grow: 1;
+}
+
+.todo-item.priority-low {
+  background-color: #e7f3e7; /* Light Green */
+}
+
+.todo-item.priority-medium {
+  background-color: #fff3cd; /* Light Yellow */
+}
+
+.todo-item.priority-high {
+  background-color: #f8d7da; /* Light Red */
+}
+
+.todo-item.priority-very-high {
+  background-color: #f5c6cb; /* Light Pink */
+}
+
+.todo-item.priority-critical {
+  background-color: #f8d7da; /* Light Red */
+}
+.todo-list {
+  max-width: 900px; /* Limit the width for better readability */
+  margin: 0 auto; /* Center the todo list */
+  padding: 20px; /* Add padding around the container */
+  background-color: #f9f9f9; /* Light background color */
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+h1 {
+  text-align: center; /* Center the title */
+  color: #333; /* Darker text for better contrast */
+}
+
+input[type="text"],
+input[type="number"] {
+  width: 100%; /* Full width */
+  padding: 10px; /* Padding inside the input */
+  margin: 10px 0; /* Spacing between inputs */
+  border: 1px solid #ccc; /* Light border */
+  border-radius: 4px; /* Slightly rounded corners */
+  font-size: 16px; /* Font size for better readability */
+  transition: border-color 0.3s ease; /* Smooth border color transition */
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus {
+  border-color: #007bff; /* Blue border on focus */
+  outline: none; /* Remove default outline */
+}
+
+button {
+  background-color: #007bff; /* Primary button color */
+  color: white; /* White text on button */
+  padding: 10px 15px; /* Padding inside the button */
+  border: none; /* Remove default border */
+  border-radius: 4px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  font-size: 16px; /* Font size for buttons */
+  transition: background-color 0.3s ease; /* Smooth background color transition */
+}
+
+button:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
+.todo-item {
+  background-color: #ffffff; /* White background for todo items */
+  padding: 15px; /* Padding for the todo item */
+  margin: 10px 0; /* Margin between todo items */
+  border-radius: 4px; /* Rounded corners */
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+.todo-item h3 {
+  margin: 0; /* Remove default margin */
+}
+
+.todo-item p {
+  margin: 5px 0; /* Spacing between paragraphs */
+}
+
+form {
+  margin-top: 20px; /* Spacing above the edit form */
+  border-top: 1px solid #ccc; /* Divider above the form */
+  padding-top: 20px; /* Padding inside the form */
+}
+input[type="text"],
+input[type="number"] {
+  width: auto; /* Change to auto to fit content */
+  min-width: 200px; /* Set a minimum width */
+  padding: 10px; /* Padding inside the input */
+  margin: 10px 0; /* Spacing between inputs */
+  border: 1px solid #ccc; /* Light border */
+  border-radius: 4px; /* Slightly rounded corners */
+  font-size: 16px; /* Font size for better readability */
+  transition: border-color 0.3s ease; /* Smooth border color transition */
+}

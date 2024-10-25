@@ -1,149 +1,116 @@
-
-*{
-  padding-left: 55px;
-  padding-right: 65px;
+* {
+  box-sizing: border-box; /* Ensures padding and borders are included in the element's total width and height */
+  margin: 0; /* Resets default margins */
+  padding: 0; /* Resets default padding */
+  width: 100%;
 }
 
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Modern sans-serif font */
 
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  min-height: 100vh; /* Full height of the viewport */
+}
 
+.admin-form {
+  display: flex;
+  flex-direction: column; /* Stack elements vertically */
+  justify-content: center; /* Center contents vertically */
+  align-items: center; /* Center contents horizontally */
+  width: 600px; /* Reduced width for better centering */
+ 
+  border-radius: 8px; /* Slightly rounded corners */
+ 
+  padding: 20px; /* Consistent padding */
+}
 
+.admin-title {
+  font-size: 24px; /* Larger title for emphasis */
+  color: #2c3e50; /* Dark blue color for text */
+  font-weight: bold; /* Bold for emphasis */
+  text-align: center; /* Centered title */
+  margin-bottom: 20px; /* Space below the title */
+}
 
+.admin-message,
+.admin-signin {
+  color: #7f8c8d; /* Gray text for a softer look */
+  font-size: 14px;
+  text-align: center; /* Centered text */
+}
 
+.admin-signin a {
+  color: #2980b9; /* Blue color for links */
+  text-decoration: none; /* No underline */
+}
 
+.admin-signin a:hover {
+  text-decoration: underline; /* Underline on hover for links */
+}
 
-.form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    max-width: 350px;
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 20px;
-    position: relative;
-    margin: 75px;
-  }
-  
-  .title {
-    font-size: 28px;
-    color: royalblue;
-    font-weight: 600;
-    letter-spacing: -1px;
-    position: relative;
-    display: flex;
-    align-items: center;
-    padding-left: 30px;
-  }
-  
-  .title::before, .title::after {
-    position: absolute;
-    content: "";
-    height: 16px;
-    width: 16px;
-    border-radius: 50%;
-    left: 0px;
-    background-color: royalblue;
-  }
-  
-  .title::before {
-    width: 18px;
-    height: 18px;
-    background-color: royalblue;
-  }
-  
-  .title::after {
-    width: 18px;
-    height: 18px;
-    animation: pulse 1s linear infinite;
-  }
-  
-  .message, .signin {
-    color: rgba(88, 87, 87, 0.822);
-    font-size: 14px;
-  }
-  
-  .signin {
-    text-align: center;
-  }
-  
-  .signin a {
-    color: royalblue;
-  }
-  
-  .signin a:hover {
-    text-decoration: underline royalblue;
-  }
-  
-  .flex {
-   display: flex;
-   flex-direction: column;
-   width: 345px;
-   justify-content: space-between;
-   padding-left: 1px;
-   gap: 15px;
-  }
-  
-  .form label {
-    position: relative;
-    padding-left: 55px;
-  }
-  
-  .form label .input {
-    width: 100%;
-    padding: 10px 10px 20px 10px;
-    outline: 0;
-    border: 1px solid rgba(105, 105, 105, 0.397);
-    border-radius: 10px;
-  }
-  
-  .form label .input + span {
-    position: absolute;
-    left: 10px;
-    top: 15px;
-    color: grey;
-    font-size: 0.9em;
-    cursor: text;
-    transition: 0.3s ease;
-  }
-  
-  .form label .input:placeholder-shown + span {
-    top: 15px;
-    font-size: 0.9em;
-  }
-  
-  .form label .input:focus + span, .form label .input:valid + span {
-    top: 30px;
-    font-size: 0.7em;
-    font-weight: 600;
-  }
-  
-  .form label .input:valid + span {
-    color: green;
-  }
-  
-  .submit {
-    border: none;
-    outline: none;
-    background-color: royalblue;
-    padding: 10px;
-    border-radius: 10px;
-    color: #fff;
-    font-size: 16px;
-    transform: .3s ease;
-  }
-  
-  .submit:hover {
-    background-color: rgb(56, 90, 194);
-  }
-  
-  @keyframes pulse {
-    from {
-      transform: scale(0.9);
-      opacity: 1;
-    }
-  
-    to {
-      transform: scale(1.8);
-      opacity: 0;
-    }
-  }
-  
+.admin-flex {
+  display: flex;
+  flex-direction: column; /* Stack elements vertically */
+  width: 100%; 
+  gap: 15px; 
+}
+
+.admin-label {
+  position: relative; /* Needed for the label positioning */
+  width: 100%; /* Full width for the label */
+}
+
+.admin-input {
+  width: 100%; 
+  padding: 12px; /* Padding for better touch targets */
+  border: 1px solid #bdc3c7; /* Light gray border */
+  border-radius: 4px; /* Slightly rounded corners */
+  transition: border-color 0.3s; /* Smooth border transition */
+}
+
+.admin-input:focus {
+  border-color: #2980b9; /* Blue border on focus */
+  outline: none; /* No outline */
+}
+
+.admin-input + span {
+  position: absolute;
+  left: 12px; /* Space from the left */
+  top: 12px; /* Space from the top */
+  color: #7f8c8d; /* Placeholder color */
+  font-size: 0.9em; /* Font size */
+  transition: 0.3s ease; /* Smooth transition */
+}
+
+.admin-input:focus + span,
+.admin-input:valid + span {
+  top: -10px; /* Move label up on focus/valid */
+  font-size: 0.75em; /* Smaller font when focused */
+  color: #2980b9; /* Change color when focused */
+}
+
+.admin-submit {
+  border: none;
+  background-color: #2980b9; /* Admin blue */
+  padding: 12px; /* Padding for button */
+  border-radius: 4px; /* Rounded corners */
+  color: #fff; /* White text */
+  font-size: 16px; /* Button text size */
+  cursor: pointer; /* Pointer cursor */
+  transition: background-color 0.3s; /* Smooth background transition */
+  margin-top: 10px; /* Space above the button */
+  width: 100%; /* Full width for the button */
+}
+
+.admin-submit:hover {
+  background-color: #3498db; /* Lighter blue on hover */
+}
+
+.admin-error {
+  color: #e74c3c; /* Red color for errors */
+  font-size: 0.8em; /* Smaller font for error messages */
+  margin-top: -5px; /* Space above error messages */
+  text-align: center; /* Center error messages */
+}

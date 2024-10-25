@@ -1,140 +1,157 @@
 import React, { useState } from 'react';
-import './Register.css';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Link, useNavigate } from 'react-router-dom';
+import './Login.css';
 
-function Register() {
+const Auth = () => {
+  const [isLogin, setIsLogin] = useState(true);
+  const [message, setMessage] = useState('');
   const [formData, setFormData] = useState({
     firstname: '',
     lastname: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
   });
-  const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState('');
+
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({ ...prevData, [name]: value }));
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const validationErrors = validate(formData);
-    setErrors(validationErrors);
+  const validateForm = () => {
+    const { firstname, lastname, email, password, confirmPassword } = formData;
 
-    if (Object.keys(validationErrors).length === 0) {
-      setLoading(true);
+    // Check if fields are filled
+    if (!email || !password || (!isLogin && (!firstname || !lastname || !confirmPassword))) {
+      setErrors('All fields are required.');
+      return false;
+    }
+
+    // Validate email format
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(email)) {
+      setErrors('Please enter a valid email address.');
+      return false;
+    }
+
+    // Check password length for signup
+    if (!isLogin && password.length < 6) {
+      setErrors('Password must be at least 6 characters long.');
+      return false;
+    }
+
+    // Check if passwords match for signup
+    if (!isLogin && password !== confirmPassword) {
+      setErrors('Passwords do not match.');
+      return false;
+    }
+
+    setErrors('');
+    return true;
+  };
+
+  const handleSignup = async (e) => {
+    e.preventDefault();
+    if (validateForm()) {
       try {
-        const response = await axios.post('http://localhost:3000/register', formData);
-        console.log(response.data); // Assuming successful registration
-        const { firstname } = response.data.user;
-        alert('Registration successful!');
-        setFormData({
-          firstname: '',
-          lastname: '',
-          email: '',
-          password: '',
-          confirmPassword: ''
-        });
-        setLoading(false);
-        navigate('/todolist', { state: { welcomeMessage: `Welcome, ${firstname}!` } });
+        const response = await axios.post('http://localhost:5000/register', formData);
+        setMessage(response.data.message || 'Signup successful! You can now log in.');
+        setIsLogin(true);
       } catch (error) {
-        console.error('Registration error:', error);
-        setLoading(false);
-        // Handle specific errors here if needed
+        setErrors(error.response?.data?.error || 'An error occurred during signup.');
       }
     }
   };
 
-  const validate = (values) => {
-    let errors = {};
-    if (!values.firstname) errors.firstname = 'First name is needed.';
-    if (!values.lastname) errors.lastname = 'Last name is needed.';
-    if (!values.email || !/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/.test(values.email)) {
-      errors.email = 'Invalid email format.';
+  const handleLogin = async (e) => {
+    e.preventDefault(); // Prevent default form submission
+    if (validateForm()) {
+      try {
+        const response = await axios.post('http://localhost:5000/login', {
+          email: formData.email,
+          password: formData.password,
+        });
+        console.log('Login response:', response);
+
+        if (response.data) {
+          localStorage.setItem('token', response.data.token); // Store token if available
+          navigate('/Home'); // Redirect to Home
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        if (error.response) {
+          console.error('Server responded with:', error.response.data);
+          setErrors(error.response.data.error || 'An error occurred during login.');
+        } else {
+          console.error('Error message:', error.message);
+          setErrors('An error occurred. Please try again.');
+        }
+      }
     }
-    if (!values.password) errors.password = 'Password is needed.';
-    if (values.password !== values.confirmPassword) {
-      errors.confirmPassword = 'Passwords aren\'t matching.';
-    }
-    return errors;
   };
 
   return (
-    <form className="form" onSubmit={handleSubmit}>
-      <p className="title">Register</p>
-      <p className="message">Signup now and get full access to our app.</p>
-      <div className="flex">
-        <label>
-          <input
-            required
-            name="firstname"
-            type="text"
-            className="input"
-            value={formData.firstname}
-            onChange={handleChange}
-          />
-          <span>Firstname</span>
-          {errors.firstname && <p className="error">{errors.firstname}</p>}
-        </label>
-        <label>
-          <input
-            required
-            name="lastname"
-            type="text"
-            className="input"
-            value={formData.lastname}
-            onChange={handleChange}
-          />
-          <span>Lastname</span>
-          {errors.lastname && <p className="error">{errors.lastname}</p>}
-        </label>
-      </div>
-      <label>
+    <div className="auth-container">
+      <h2>{isLogin ? 'Login' : 'Signup'}</h2>
+      <form onSubmit={isLogin ? handleLogin : handleSignup}>
+        {!isLogin && (
+          <>
+            <input
+              type="text"
+              name="firstname"
+              placeholder="First Name"
+              value={formData.firstname}
+              onChange={handleChange}
+              required
+            />
+            <input
+              type="text"
+              name="lastname"
+              placeholder="Last Name"
+              value={formData.lastname}
+              onChange={handleChange}
+              required
+            />
+          </>
+        )}
         <input
-          required
-          name="email"
           type="email"
-          className="input"
+          name="email"
+          placeholder="Email"
           value={formData.email}
           onChange={handleChange}
-        />
-        <span>Email</span>
-        {errors.email && <p className="error">{errors.email}</p>}
-      </label>
-      <label>
-        <input
           required
-          name="password"
+        />
+        <input
           type="password"
-          className="input"
+          name="password"
+          placeholder="Password"
           value={formData.password}
           onChange={handleChange}
-        />
-        <span>Password</span>
-        {errors.password && <p className="error">{errors.password}</p>}
-      </label>
-      <label>
-        <input
           required
-          name="confirmPassword"
-          type="password"
-          className="input"
-          value={formData.confirmPassword}
-          onChange={handleChange}
         />
-        <span>Confirm password</span>
-        {errors.confirmPassword && <p className="error">{errors.confirmPassword}</p>}
-      </label>
-      <button type="submit" className="submit"  disabled={loading}>
-        {loading ? <em>Submitting...</em> : <em><a href="/">Signup</a></em>}
-      </button>
-      <p className="signin">Already have an account? <Link to="/login">Signin</Link></p>
-    </form>
+        {!isLogin && (
+          <input
+            type="password"
+            name="confirmPassword"
+            placeholder="Confirm Password"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            required
+          />
+        )}
+        {errors && <p className="error-message">{errors}</p>}
+        <button type="submit">{isLogin ? 'Login' : 'Sign Up'}</button>
+      </form>
+      <p onClick={() => setIsLogin(!isLogin)} className="toggle-auth">
+        {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Login'}
+      </p>
+      {message && <p className="success-message">{message}</p>}
+    </div>
   );
-}
+};
 
-export default Register;
+export default Auth;
