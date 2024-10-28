@@ -79,22 +79,31 @@ button:hover {
 }
 
 .todo-item {
-  padding: 15px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  margin-bottom: 15px;
-  background-color: #ffffff;
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+ 
+  
+  display: flex; /* Use flex display */
+  flex-direction: column; /* Stack children vertically */
+  background-color: #ffffff; /* White background for each item */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.todo-item-content {
+  display: flex; 
+  flex-direction: row;
+  margin-left: -15px;
+  
 }
 
 .todo-item h3 {
-  margin: 0 0 5px 0;
+  margin: 0;
   color: #333;
+  flex-grow: 0; /* Prevent h3 from growing; keep it at its content size */
 }
 
 .todo-item p {
   margin: 5px 0;
   color: #555;
+  flex-grow: 0; /* Prevent p from growing; keep it at its content size */
 }
 
 .todo-item button {
@@ -104,6 +113,7 @@ button:hover {
   cursor: pointer;
   padding: 5px 10px;
   font-size: 0.9rem;
+  align-self: flex-start; /* Align button to the start (left) */
 }
 
 .todo-item button:hover {
