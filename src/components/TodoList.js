@@ -41,12 +41,12 @@ function TodoList() {
       setErrorMessage('Please enter a task name');
       return;
     }
-  
+
     if (priority < 1 || priority > 5) {
       setErrorMessage('Priority must be between 1 and 5');
       return;
     }
-  
+
     setLoading(true);
     setErrorMessage('');
     try {
@@ -55,7 +55,7 @@ function TodoList() {
         description: newTodoDescription,
         priority: priority,
       });
-  
+
       if (response.status === 201) {
         setTodos((prevTodos) => [...prevTodos, response.data]);
         setNewTodo('');
@@ -71,7 +71,7 @@ function TodoList() {
       setLoading(false);
     }
   };
-  
+
   const deleteTodo = async (id) => {
     setLoading(true);
     setErrorMessage('');
@@ -173,7 +173,16 @@ function TodoList() {
       {errorMessage && <p className="error-message">{errorMessage}</p>}
 
       {filteredTodos.map((todo) => (
-        <div key={todo.id} className="todo-item">
+        <div 
+          key={todo.id} 
+          className={`todo-item 
+            ${todo.priority === 1 ? 'priority-low' : ''}
+            ${todo.priority === 2 ? 'priority-low' : ''}
+            ${todo.priority === 3 ? 'priority-medium' : ''}
+            ${todo.priority === 4 ? 'priority-high' : ''}
+            ${todo.priority === 5 ? 'priority-high' : ''}
+          `}
+        >
           <h3>{todo.name}</h3>
           <p>{todo.description}</p>
           <p>Priority: {todo.priority}</p>
