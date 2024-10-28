@@ -29,14 +29,14 @@ function SettingsButton({ userId, setUserId }) {
         navigate('/register');
         break;
       case 'loginAnotherUser':
-        navigate('/login');
+        navigate('/');
         break;
       case 'logout':
         try {
           await fetch('/logout', { method: 'POST' });
           alert('Logged out');
           setUserId(null); // Clear user ID
-          navigate('/login'); // Redirect to login page
+          navigate('/'); // Redirect to login page
         } catch (error) {
           alert('Error logging out');
         }
