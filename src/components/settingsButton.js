@@ -18,8 +18,8 @@ function SettingsButton({ userId, setUserId }) {
           try {
             await fetch(`/users/${userId}`, { method: 'DELETE' });
             alert('Account deleted');
-            setUserId(null); // Clear user ID
-            navigate('/login'); // Redirect to login page
+            setUserId(null); 
+            navigate('/login'); 
           } catch (error) {
             alert('Error deleting account');
           }
@@ -35,8 +35,8 @@ function SettingsButton({ userId, setUserId }) {
         try {
           await fetch('/logout', { method: 'POST' });
           alert('Logged out');
-          setUserId(null); // Clear user ID
-          navigate('/'); // Redirect to login page
+          setUserId(null); 
+          navigate('/'); 
         } catch (error) {
           alert('Error logging out');
         }

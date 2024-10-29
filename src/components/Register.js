@@ -24,26 +24,26 @@ const Auth = () => {
   const validateForm = () => {
     const { firstname, lastname, email, password, confirmPassword } = formData;
 
-    // Check if fields are filled
+  
     if (!email || !password || (!isLogin && (!firstname || !lastname || !confirmPassword))) {
       setErrors('All fields are required.');
       return false;
     }
 
-    // Validate email format
+    
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailPattern.test(email)) {
       setErrors('Please enter a valid email address.');
       return false;
     }
 
-    // Check password length for signup
+  
     if (!isLogin && password.length < 6) {
       setErrors('Password must be at least 6 characters long.');
       return false;
     }
 
-    // Check if passwords match for signup
+
     if (!isLogin && password !== confirmPassword) {
       setErrors('Passwords do not match.');
       return false;
@@ -67,7 +67,7 @@ const Auth = () => {
   };
 
   const handleLogin = async (e) => {
-    e.preventDefault(); // Prevent default form submission
+    e.preventDefault(); 
     if (validateForm()) {
       try {
         const response = await axios.post('http://localhost:5000/login', {
@@ -77,8 +77,8 @@ const Auth = () => {
         console.log('Login response:', response);
 
         if (response.data) {
-          localStorage.setItem('token', response.data.token); // Store token if available
-          navigate('/Home'); // Redirect to Home
+          localStorage.setItem('token', response.data.token); 
+          navigate('/Home'); 
         }
       } catch (error) {
         console.error('Login error:', error);
