@@ -173,37 +173,35 @@ function TodoList() {
       {errorMessage && <p className="error-message">{errorMessage}</p>}
 
       <div className='LIST'>
-  {filteredTodos.map((todo) => (
-    <div
-      key={todo.id}
-      className={`todo-item
-        ${todo.priority === 1 ? 'priority-low' : ''}
-        ${todo.priority === 2 ? 'priority-low' : ''}
-        ${todo.priority === 3 ? 'priority-medium' : ''}
-        ${todo.priority === 4 ? 'priority-high' : ''}
-        ${todo.priority === 5 ? 'priority-high' : ''}
-      `}
-    >
-      <div className="todo-item-content">
-        <h3>{todo.name}</h3>
-        <p>{todo.description}</p>
-        <p>Priority: {todo.priority}</p>
-        <p>Status: {todo.completed ? 'Completed' : 'Pending'}</p>
-        <div className="todo-item-content">
-        <button onClick={() => deleteTodo(todo.id)} disabled={loading}>Delete</button>
-        <button onClick={() => {
-          setEditingTodoId(todo.id);
-          setEditingTodo(todo.name);
-          setEditingDescription(todo.description);
-          setEditingPriority(todo.priority);
-        }} disabled={loading}>Edit</button>
+        {filteredTodos.map((todo) => (
+          <div
+            key={todo.id}
+            className={`todo-item
+              ${todo.priority === 1 ? 'priority-low' : ''}
+              ${todo.priority === 2 ? 'priority-low' : ''}
+              ${todo.priority === 3 ? 'priority-medium' : ''}
+              ${todo.priority === 4 ? 'priority-high' : ''}
+              ${todo.priority === 5 ? 'priority-high' : ''}
+            `}
+          >
+            <div className="todo-item-content">
+              <h3>{todo.name}</h3>
+              <p>{todo.description}</p>
+              <p>Priority: {todo.priority}</p>
+              <p>Status: {todo.completed ? 'Completed' : 'Pending'}</p>
+              <div className="todo-item-content">
+                <button onClick={() => deleteTodo(todo.id)} disabled={loading}>Delete</button>
+                <button onClick={() => {
+                  setEditingTodoId(todo.id);
+                  setEditingTodo(todo.name);
+                  setEditingDescription(todo.description);
+                  setEditingPriority(todo.priority);
+                }} disabled={loading}>Edit</button>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
-      </div>
-     
-    </div>
-  ))}
-</div>
-
 
       {editingTodoId && (
         <form onSubmit={editTodo}>

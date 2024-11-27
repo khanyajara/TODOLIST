@@ -85,9 +85,12 @@ app.post('/login', async (req, res) => {
   }
 
   try {
-    const passwordMatch = await bcrypt.compare(password, user.password);
+    const passwordMatch = await bcrypt.compare(password, user.password); // Compare plain text with stored hash
     if (passwordMatch) {
-      return res.json({ message: 'Login successful', user: { id: user.id, firstname: user.firstname, lastname: user.lastname, email: user.email } });
+      return res.json({ 
+        message: 'Login successful', 
+        user: { id: user.id, firstname: user.firstname, lastname: user.lastname, email: user.email } 
+      });
     } else {
       return res.status(401).json({ error: 'Invalid email or password' });
     }

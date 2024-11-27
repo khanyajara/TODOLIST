@@ -29,7 +29,7 @@ const express  = require('express')
 
 
      app.post('/register', async (req, res) => {
-        const { name, email, username, password } = req.body;
+        const { name, email, username, password, user_id } = req.body;
 
         if (!validateEmail(email)){
             return res.status(400).json({error:'Invalid email format'});
@@ -42,11 +42,11 @@ const express  = require('express')
         const hashedPassword = await bcrypt.hash(password,10);
 
         const sql =`
-        INSERT INTO user  (name, email, username, password )
+        INSERT INTO user  (name, email, username, password , user_id)
         VALUES (?,?,?,?,?)`;
 
         try {
-            const info=db.prepare(sql).run(name, email, username, hashedPassword);
+            const info=db.prepare(sql).run(name, email, username, hashedPassword, user_id);
             res.status(201).json({id:info.lastInsertRowid});
             } catch (error) {
                 res.status(400).json({error:"Username or email already exists"});
