@@ -20,14 +20,14 @@ const express  = require('express')
  } 
  createTable();
 
- //validtaion email format 
+
  const validateEmail = (email) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(string(email).toLowerCase());
     };
 
 
-  // Register a new user 
+
      app.post('/register', async (req, res) => {
         const { name, email, username, password } = req.body;
 
@@ -54,7 +54,7 @@ const express  = require('express')
         });
 
 
-        //Login a user 
+       
         app.post('/login', async (req, res) => {
             const { email, password } = req.body;
             const sql =`

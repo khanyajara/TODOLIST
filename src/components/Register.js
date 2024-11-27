@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import './Login.css';
+import './Register.css';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -105,7 +105,8 @@ const Auth = () => {
               placeholder="First Name"
               value={formData.firstname}
               onChange={handleChange}
-              required
+              required 
+              className='INPUTS'
             />
             <input
               type="text"
@@ -113,7 +114,8 @@ const Auth = () => {
               placeholder="Last Name"
               value={formData.lastname}
               onChange={handleChange}
-              required
+              required 
+              className='INPUTS'
             />
           </>
         )}
@@ -123,7 +125,8 @@ const Auth = () => {
           placeholder="Email"
           value={formData.email}
           onChange={handleChange}
-          required
+          required 
+          className='INPUTS'
         />
         <input
           type="password"
@@ -131,7 +134,8 @@ const Auth = () => {
           placeholder="Password"
           value={formData.password}
           onChange={handleChange}
-          required
+          required 
+          className='INPUTS'
         />
         {!isLogin && (
           <input
@@ -140,11 +144,12 @@ const Auth = () => {
             placeholder="Confirm Password"
             value={formData.confirmPassword}
             onChange={handleChange}
-            required
+            required 
+            className='INPUTS'
           />
         )}
         {errors && <p className="error-message">{errors}</p>}
-        <button type="submit">{isLogin ? 'Login' : 'Sign Up'}</button>
+        <button type="submit" className='Submit-btn'>{isLogin ? 'Login' : 'Sign Up'}</button>
       </form>
       <p onClick={() => setIsLogin(!isLogin)} className="toggle-auth">
         {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Login'}

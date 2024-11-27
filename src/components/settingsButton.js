@@ -49,7 +49,7 @@ function SettingsButton({ userId, setUserId }) {
   return (
     <div className="settings-button-container">
       <button className="button" onClick={handleMenuToggle}>
-        {/* SVG icon here */}
+        
         <span className="label">Account</span>
       </button>
       {showMenu && (

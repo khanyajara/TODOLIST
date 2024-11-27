@@ -9,16 +9,16 @@ const bcrypt = require('bcrypt');
 const app = express();
 const port = 5000;
 
-// Database setup
+
 const dbPath = path.join(__dirname, 'database.db');
 const db = new sqlite3(dbPath);
 
-// Middleware
+
 app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 app.use(express.json());
 app.use(bodyParser.json());
 
-// Create tables if they don't exist
+
 db.exec(`
   CREATE TABLE IF NOT EXISTS user (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -39,7 +39,7 @@ db.exec(`
   );
 `);
 
-// Handle user registration
+
 app.post('/register', [
   body('firstname').isString().trim().notEmpty(),
   body('lastname').isString().trim().notEmpty(),
@@ -75,7 +75,7 @@ app.post('/register', [
   }
 });
 
-// Login endpoint
+
 app.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -97,11 +97,10 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// Add Task Endpoint
 app.post('/tasks', (req, res) => {
   const { name, description, priority } = req.body;
 
-  // Validate input
+  
   if (typeof name !== 'string' || typeof description !== 'string' || typeof priority !== 'number') {
     return res.status(400).send({ error: 'Invalid input types' });
   }
@@ -116,7 +115,7 @@ app.post('/tasks', (req, res) => {
   }
 });
 
-// Delete Task Endpoint
+
 app.delete('/tasks/:id', (req, res) => {
   const taskId = req.params.id;
 
@@ -130,7 +129,7 @@ app.delete('/tasks/:id', (req, res) => {
   }
 });
 
-// Edit Task Endpoint
+
 app.put('/tasks/:id', [
   body('name').isString().trim().notEmpty(),
   body('description').optional().isString().trim(),
@@ -155,13 +154,13 @@ app.put('/tasks/:id', [
   }
 });
 
-// Fetch All Tasks Endpoint
+
 app.get('/tasks', (req, res) => {
-  const tasks = db.prepare('SELECT * FROM task').all(); // Fetch all tasks
+  const tasks = db.prepare('SELECT * FROM task').all();
   return res.json(tasks);
 });
 
-// Start the server
+
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
